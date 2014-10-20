@@ -18,9 +18,10 @@
     "issues": "https://github.com/betacie/hooks/issues"
   },
   "require": {
+    "php": ">=5.4",
     "silex/silex": "1.0.*@dev",
     "symfony/console": "2.1.*",
-    "knplabs/console-service-provider": "dev-master"
+    "knplabs/console-service-provider": "~1.0"
   },
   "require-dev": {
     "sensio/generator-bundle": "~2.3",
