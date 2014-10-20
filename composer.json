@@ -1,0 +1,42 @@
+{
+  "name": "betacie/hooks",
+  "description": "Command-line tool to interact with hooks.yml files.",
+  "type": "library",
+  "keywords": [
+    "hooks",
+    "webhooks"
+  ],
+  "license": "WTFPL",
+  "authors": [
+    {
+      "name": "Maxime Valette",
+      "email": "maxime@maximevalette.com",
+      "role": "lead"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/betacie/hooks/issues"
+  },
+  "require": {
+    "silex/silex": "1.0.*@dev",
+    "symfony/console": "2.1.*",
+    "knplabs/console-service-provider": "dev-master"
+  },
+  "require-dev": {
+    "sensio/generator-bundle": "~2.3",
+    "phpunit/phpunit": "4.2.*",
+    "m6web/coke": "dev-master",
+    "m6web/symfony2-coding-standard": "dev-master"
+  },
+  "config": {
+    "bin-dir": "bin"
+  },
+  "bin": [
+    "hooks"
+  ],
+  "autoload": {
+    "psr-0": {
+      "Hooks": "src/"
+    }
+  }
+}

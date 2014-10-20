@@ -1,0 +1,24 @@
+#!/usr/bin/env php
+<?php
+
+use Hooks\Command;
+
+require_once __DIR__ . '/vendor/autoload.php';
+
+$app = new Silex\Application();
+
+$app->register(
+    new \Knp\Provider\ConsoleServiceProvider(),
+    array(
+        'console.name'              => 'Hooks',
+        'console.version'           => '1.0',
+        'console.project_directory' => __DIR__ . '/..'
+    )
+);
+
+$application = $app['console'];
+
+$application->add(new Command\InstallCommand());
+$application->add(new Command\TriggerCommand());
+
+$application->run();
