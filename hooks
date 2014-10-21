@@ -2,6 +2,9 @@
 <?php
 
 use Hooks\Command;
+use Symfony\Component\Console\Application;
+
+
 
 foreach (array(__DIR__ . '/../../autoload.php', __DIR__ . '/vendor/autoload.php') as $file) {
     if (file_exists($file)) {
@@ -19,20 +22,10 @@ if (!defined('BETACIE_HOOKS_COMPOSER_INSTALL')) {
 
 require BETACIE_HOOKS_COMPOSER_INSTALL;
 
-$app = new Silex\Application();
 
-$app->register(
-    new \Knp\Provider\ConsoleServiceProvider(),
-    array(
-        'console.name'              => 'Hooks',
-        'console.version'           => '1.0',
-        'console.project_directory' => __DIR__ . '/..'
-    )
-);
+$console = new Application();
 
-$application = $app['console'];
+$console->add(new Command\InstallCommand());
+$console->add(new Command\TriggerCommand());
 
-$application->add(new Command\InstallCommand());
-$application->add(new Command\TriggerCommand());
-
-$application->run();
+$console->run();
