@@ -4,8 +4,6 @@
 use Hooks\Command;
 use Symfony\Component\Console\Application;
 
-
-
 foreach (array(__DIR__ . '/../../autoload.php', __DIR__ . '/vendor/autoload.php') as $file) {
     if (file_exists($file)) {
         define('BETACIE_HOOKS_COMPOSER_INSTALL', $file);
@@ -21,7 +19,6 @@ if (!defined('BETACIE_HOOKS_COMPOSER_INSTALL')) {
 }
 
 require BETACIE_HOOKS_COMPOSER_INSTALL;
-
 
 $console = new Application();
 
