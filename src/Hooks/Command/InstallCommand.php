@@ -87,10 +87,16 @@ class InstallCommand extends Command
         putenv('CURRENT_BRANCH=' . $branch);
         putenv('CURRENT_BRANCH_SANITIZED=' . str_replace('/', '_', $branch));
 
-        if ($url && is_array($cmds['release'])) {
-            mkdir($baseDir . '/' . $cmds['release']['directory']);
-            mkdir($baseDir . '/' . $cmds['release']['directory'] . '/shared');
-            mkdir($baseDir . '/' . $cmds['release']['directory'] . '/releases');
+        if ($url && isset($cmds['release']) && is_array($cmds['release'])) {
+            if (!is_dir($baseDir . '/' . $cmds['release']['directory'])) {
+                mkdir($baseDir . '/' . $cmds['release']['directory']);
+            }
+            if (!is_dir($baseDir . '/' . $cmds['release']['directory'] . '/shared')) {
+                mkdir($baseDir . '/' . $cmds['release']['directory'] . '/shared');
+            }
+            if (!is_dir($baseDir . '/' . $cmds['release']['directory'] . '/releases')) {
+                mkdir($baseDir . '/' . $cmds['release']['directory'] . '/releases');
+            }
 
             rename($baseDir . '/' . $newDir, $baseDir . '/' . $cmds['release']['directory'] . '/releases/' . $newDir);
             chdir($baseDir . '/' . $cmds['release']['directory'] . '/releases/' . $newDir);
@@ -167,15 +173,20 @@ class InstallCommand extends Command
             }
 
             if (is_array($yaml['slack']) && !empty($yaml['slack']['url']) && !empty($yaml['slack']['channel'])) {
-                $messages = [
-                    'It\'s alive',
-                    'Just launched',
-                    'We\'re live',
-                    'Shipped',
-                    'Go go go',
-                ];
+                try {
+                    $config = Yaml::parse(file_get_contents($_SERVER['HOME'] . '/.hooks.yml'));
+                } catch (\Exception $e) {
+                    $config = [
+                        'messages' => ['New release']
+                    ];
+                }
+                if (!isset($config['messages']) || !is_array($config['messages'])) {
+                    $config = [
+                        'messages' => ['New release']
+                    ];
+                }
 
-                $randMessage = $messages[array_rand($messages)];
+                $randMessage = $config['messages'][array_rand($config['messages'])];
 
                 $url = $cmds['release']['url'];
                 $name = $cmds['release']['name'];
