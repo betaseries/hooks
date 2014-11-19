@@ -24,5 +24,7 @@ $console = new Application();
 
 $console->add(new Command\InstallCommand());
 $console->add(new Command\TriggerCommand());
+$console->add(new Command\WorkerJobCommand());
+$console->add(new Command\WorkerIncrementCommand());
 
 $console->run();
