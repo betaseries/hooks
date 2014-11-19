@@ -30,7 +30,7 @@ class InstallCommand extends Command
         $this->addOption('dir', 'd', InputOption::VALUE_OPTIONAL, 'Working directory.', '.');
         $this->addOption('url', 'u', InputOption::VALUE_OPTIONAL, 'Git clone URL.', null);
         $this->addOption('silent', null, InputOption::VALUE_NONE, 'No notification.');
-        $this->addArgument('branch', InputArgument::OPTIONAL, 'Branch name.', 'master');
+        $this->addArgument('branch', InputArgument::OPTIONAL, 'Branch name.', null);
     }
 
     /**
@@ -50,6 +50,13 @@ class InstallCommand extends Command
         $url = $input->getOption('url');
         $silent = $input->getOption('silent');
         $branch = $input->getArgument('branch');
+
+        if (!$branch) {
+            $branch = trim(substr(file_get_contents($dir . '/.git/HEAD'), 16));
+            if (empty($branch)) {
+                $branch = 'master';
+            }
+        }
 
         $newDir = date('YmdHis');
         $baseDir = $dir;
@@ -96,13 +103,13 @@ class InstallCommand extends Command
         }
 
         if (is_array($cmds['release'])) {
-            if ($url && is_array($cmds['release']['shared'])) {
+            if ($url && isset($cmds['release']['shared']) && is_array($cmds['release']['shared'])) {
                 foreach ($cmds['release']['shared'] as $item) {
                     $output->writeln('Linking shared item ' . $item);
                     $outputResult .= $this->executeCommand('rm -Rf ' . $baseDir . '/' . $cmds['release']['directory'] . '/releases/' . $newDir . $item . ' && ln -fs ' . $baseDir . '/' . $cmds['release']['directory'] . '/shared' . $item . ' ' . $baseDir . '/' . $cmds['release']['directory'] . '/releases/' . $newDir . $item) . PHP_EOL . PHP_EOL;
                 }
             }
-            if (is_array($cmds['release']['after'])) {
+            if (isset($cmds['release']['after']) && is_array($cmds['release']['after'])) {
                 foreach ($cmds['release']['after'] as $cmd) {
                     $outputResult .= $this->executeCommand($cmd) . PHP_EOL . PHP_EOL;
                 }
