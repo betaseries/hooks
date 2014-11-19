@@ -21,7 +21,8 @@
     "php": ">=5.4",
     "symfony/console": "~2.1",
     "guzzlehttp/guzzle": "~5.0",
-    "swiftmailer/swiftmailer": "@stable"
+    "swiftmailer/swiftmailer": "@stable",
+    "symfony/yaml": "~2.0"
   },
   "require-dev": {
     "sensio/generator-bundle": "~2.3",
