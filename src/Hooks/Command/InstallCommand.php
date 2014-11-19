@@ -78,9 +78,9 @@ class InstallCommand extends Command
         $yaml = Yaml::parse($hooksData);
         $cmds = [];
 
-        if (is_array($yaml[$branch])) {
+        if (isset($yaml[$branch]) && is_array($yaml[$branch])) {
             $cmds = $yaml[$branch];
-        } elseif (is_array($yaml['all'])) {
+        } elseif (isset($yaml['all']) && is_array($yaml['all'])) {
             $cmds = $yaml['all'];
         }
 
@@ -96,6 +96,10 @@ class InstallCommand extends Command
             chdir($baseDir . '/' . $cmds['release']['directory'] . '/releases/' . $newDir);
         } elseif ($url) {
             throw new \Exception('You cannot set a Git clone URL without any release info.');
+        }
+
+        if (!isset($cmds['commands']) || !is_array($cmds['commands'])) {
+            throw new \Exception('The commands list is not an array or not present.');
         }
 
         foreach ($cmds['commands'] as $cmd) {
