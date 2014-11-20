@@ -146,6 +146,20 @@ class InstallCommand extends Command
             }
         }
 
+        try {
+            $config = Yaml::parse(file_get_contents($_SERVER['HOME'] . '/.hooks.yml'));
+        } catch (\Exception $e) {
+            $config = [
+                'after' => []
+            ];
+        }
+
+        if (is_array($config) && isset($config['after']) && is_array($config['after'])) {
+            foreach ($config['after'] as $cmd) {
+                $outputResult .= $this->executeCommand($cmd, $output, true) . PHP_EOL . PHP_EOL;
+            }
+        }
+
         if (!$silent && is_array($cmds['release'])) {
             try {
                 $config = Yaml::parse(file_get_contents($_SERVER['HOME'] . '/.hooks.yml'));
