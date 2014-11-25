@@ -108,6 +108,12 @@ class InstallCommand extends Command
             throw new \Exception('The commands list is not an array or not present.');
         }
 
+        if (isset($cmds['env']) && is_array($cmds['env'])) {
+            foreach ($cmds['env'] as $env) {
+                $outputResult .= $this->putEnvVar($env, $output, true) . PHP_EOL . PHP_EOL;
+            }
+        }
+
         foreach ($cmds['commands'] as $cmd) {
             $outputResult .= $this->executeCommand($cmd, $output, true) . PHP_EOL . PHP_EOL;
         }
@@ -261,6 +267,25 @@ class InstallCommand extends Command
         if (!empty($trimmed)) {
             $result .= PHP_EOL . $trimmed;
         }
+
+        return $result;
+    }
+
+    /**
+     * @param string $env
+     * @param bool   $displayCommand
+     *
+     * @return string|OutputInterface
+     */
+    private function putEnvVar($env, $displayCommand=true)
+    {
+        $result = '~> Setting environment variable ' . $env;
+
+        if ($displayCommand) {
+            $this->_output->writeln('~> Setting environment variable ' . $env);
+        }
+
+        putenv($env);
 
         return $result;
     }
