@@ -246,6 +246,12 @@ class InstallCommand extends Command
                 }
 
                 if (!empty($liveUrl) || !empty($name)) {
+                    if ($pullBranch) {
+                        $title = 'Pull Request from ' . $pullBranch;
+                    } else {
+                        $title = 'Release from ' . $branch;
+                    }
+
                     $client = new Client();
                     $response = $client->post($yaml['slack']['url'], [
                             'body' => [
@@ -256,7 +262,7 @@ class InstallCommand extends Command
                                         'color' => '#B8CB82',
                                         'fields' => [
                                             [
-                                                'title' => 'Release',
+                                                'title' => $title,
                                                 'value' => 'Last commit: ' . $lastCommit,
                                                 'short' => false,
                                             ],
