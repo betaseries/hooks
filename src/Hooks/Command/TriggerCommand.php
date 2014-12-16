@@ -2,12 +2,14 @@
 
 namespace Hooks\Command;
 
+use Hooks\Tools\SystemTools;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Yaml\Yaml;
+use Hooks\Tools\ConfigTools;
 
 /**
  * Class TriggerCommand
@@ -36,31 +38,21 @@ class TriggerCommand extends Command
      */
     public function execute(InputInterface $input, OutputInterface $output)
     {
+        $systemTools = new SystemTools($output);
+
         $dir = $input->getOption('dir');
         $trigger = $input->getArgument('name');
 
-        if (!file_exists($dir . '/hooks.yml')) {
-            throw new \Exception('No file found (Looking for ' . $dir . '/hooks.yml)');
-        }
+        $yaml = ConfigTools::getRepositoryConfig($dir);
 
-        $hooksData = file_get_contents($dir . '/hooks.yml');
-        $yaml = Yaml::parse($hooksData);
-        $cmds = [];
+        $branch = trim(substr(file_get_contents($dir . '/.git/HEAD'), 16));
+        $systemTools->putEnvVar('CURRENT_BRANCH=' . $branch);
+        $systemTools->putEnvVar('CURRENT_BRANCH_SANITIZED=' . str_replace('/', '_', $branch));
 
         if (isset($yaml['triggers'][$trigger]) && is_array($yaml['triggers'][$trigger])) {
             foreach ($yaml['triggers'][$trigger] as $cmd) {
-                $output->writeln('~>' . $cmd);
-                system($cmd);
+                $systemTools->executeCommand($cmd);
             }
-        }
-
-        $branch = trim(substr(file_get_contents($dir . '/.git/HEAD'), 16));
-        putenv('CURRENT_BRANCH=' . $branch);
-        putenv('CURRENT_BRANCH_SANITIZED=' . str_replace('/', '_', $branch));
-
-        foreach ($cmds as $cmd) {
-            $output->writeln('~> ' . $cmd);
-            system($cmd);
         }
 
         return null;

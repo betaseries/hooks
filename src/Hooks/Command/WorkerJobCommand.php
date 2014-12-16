@@ -81,8 +81,21 @@ class WorkerJobCommand extends Command
                 try {
                     $output->writeln('<info>[' . date('c') . '] New job started.</info>');
 
-                    $command = new InstallCommand();
-                    $cmdInput = new ArrayInput($details);
+                    switch ($details['command']) {
+                        case 'install':
+                            $command = new InstallCommand();
+                            break;
+
+                        case 'clean':
+                            $command = new CleanCommand();
+                            break;
+
+                        default:
+                            $command = new InstallCommand();
+                            break;
+                    }
+
+                    $cmdInput = new ArrayInput($details['args']);
 
                     $command->run($cmdInput, $output);
 
