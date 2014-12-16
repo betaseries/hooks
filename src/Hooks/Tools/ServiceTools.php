@@ -3,7 +3,6 @@
 namespace Hooks\Tools;
 
 use GuzzleHttp\Client;
-use Hooks\Tools\ConfigTools;
 
 /**
  * Class ServiceTools
@@ -25,11 +24,12 @@ class ServiceTools
         $client = new Client();
 
         $response = $client->post('https://api.github.com/repos/' . $repository . '/statuses/' . $SHA, [
-            'body' => [
+            'body' => json_encode([
                 'state' => $state,
                 'target_url' => $targetUrl,
                 'description' => $description,
-            ],
+                'context' => 'betacie/hooks',
+            ]),
             'headers' => [
                 'Authorization' => 'token ' . $config['github']['token'],
             ],
