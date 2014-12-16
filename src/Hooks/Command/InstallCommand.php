@@ -135,14 +135,14 @@ class InstallCommand extends Command
             }
         }
 
-        if (isset($cmds['commands']) && is_array($cmds['commands'])) {
-            foreach ($cmds['commands'] as $cmd) {
+        if ($pullBranch && isset($yaml['pulls']) && is_array($yaml['pulls']) && isset($yaml['pulls']['open']) && is_array($yaml['pulls']['open'])) {
+            foreach ($yaml['pulls']['open'] as $cmd) {
                 $outputResult .= $systemTools->executeCommand($cmd, $output, true) . PHP_EOL . PHP_EOL;
             }
         }
 
-        if ($pullBranch && isset($yaml['pulls']) && is_array($yaml['pulls']) && isset($yaml['pulls']['open']) && is_array($yaml['pulls']['open'])) {
-            foreach ($yaml['pulls']['open'] as $cmd) {
+        if (isset($cmds['commands']) && is_array($cmds['commands'])) {
+            foreach ($cmds['commands'] as $cmd) {
                 $outputResult .= $systemTools->executeCommand($cmd, $output, true) . PHP_EOL . PHP_EOL;
             }
         }
