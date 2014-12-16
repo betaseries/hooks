@@ -65,7 +65,9 @@ class InstallCommand extends Command
             }
         }
 
-        ServiceTools::sendGitHubStatus($pullRepository, $pullSHA, 'pending');
+        if ($pullRepository && $pullSHA) {
+            ServiceTools::sendGitHubStatus($pullRepository, $pullSHA, 'pending');
+        }
 
         $newDir = date('YmdHis');
         $baseDir = $dir;
@@ -206,7 +208,9 @@ class InstallCommand extends Command
                 $liveUrl = $cmds['release']['url'];
             }
 
-            ServiceTools::sendGitHubStatus($pullRepository, $pullSHA, 'pending', $liveUrl, 'Staging environment has been updated.');
+            if ($pullRepository && $pullSHA) {
+                ServiceTools::sendGitHubStatus($pullRepository, $pullSHA, 'success', $liveUrl, 'Staging environment has been updated.');
+            }
 
             if (is_array($yaml['emails'])) {
                 $transport = \Swift_MailTransport::newInstance();
