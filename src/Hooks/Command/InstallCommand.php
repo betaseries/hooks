@@ -96,7 +96,7 @@ class InstallCommand extends Command
         }
 
         if ($pullRepository && $pullSHA) {
-            ServiceTools::sendGitHubStatus($pullRepository, $pullSHA, 'pending');
+            ServiceTools::sendGitHubStatus($pullRepository, $pullSHA, 'pending', null, 'Shipping…');
         }
 
         $newDir = date('YmdHis');
