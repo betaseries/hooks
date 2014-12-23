@@ -59,7 +59,7 @@ class CleanCommand extends Command
             $cmds = $yaml['all'];
         }
 
-        $outputResult .= $systemTools->changeDirectory($dir) . PHP_EOL . PHP_EOL;
+        $outputResult .= $systemTools->changeDirectory($dir . '/current') . PHP_EOL . PHP_EOL;
 
         if (isset($yaml['pulls']) && is_array($yaml['pulls']) && isset($yaml['pulls']['close']) && is_array($yaml['pulls']['close'])) {
             foreach ($yaml['pulls']['close'] as $cmd) {
