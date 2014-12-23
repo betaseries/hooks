@@ -47,8 +47,8 @@ class CleanCommand extends Command
         $silent = $input->getOption('silent');
         $branch = $input->getArgument('branch');
 
-        $outputResult .= $systemTools->putEnvVar('CURRENT_BRANCH=' . $branch);
-        $outputResult .= $systemTools->putEnvVar('CURRENT_BRANCH_SANITIZED=' . str_replace('/', '_', $branch));
+        $outputResult .= $systemTools->putEnvVar('CURRENT_BRANCH=' . $branch) . PHP_EOL . PHP_EOL;
+        $outputResult .= $systemTools->putEnvVar('CURRENT_BRANCH_SANITIZED=' . str_replace('/', '_', $branch)) . PHP_EOL . PHP_EOL;
 
         $yaml = ConfigTools::getRepositoryConfig($dir . '/current');
         $cmds = [];
@@ -59,7 +59,7 @@ class CleanCommand extends Command
             $cmds = $yaml['all'];
         }
 
-        chdir($dir);
+        $outputResult .= $systemTools->changeDirectory($dir) . PHP_EOL . PHP_EOL;
 
         if (isset($yaml['pulls']) && is_array($yaml['pulls']) && isset($yaml['pulls']['close']) && is_array($yaml['pulls']['close'])) {
             foreach ($yaml['pulls']['close'] as $cmd) {
@@ -67,9 +67,8 @@ class CleanCommand extends Command
             }
         }
 
-        chdir($dir . '/..');
-
-        $systemTools->executeCommand('rm -Rf ' . $dir);
+        $outputResult .= $systemTools->changeDirectory($dir . '/..') . PHP_EOL . PHP_EOL;
+        $outputResult .= $systemTools->executeCommand('rm -Rf ' . $dir) . PHP_EOL . PHP_EOL;
 
         if (!$silent && isset($yaml['emails']) && is_array($yaml['emails'])) {
             $config = ConfigTools::getLocalConfig([

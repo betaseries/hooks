@@ -72,7 +72,7 @@ class InstallCommand extends Command
         $newDir = date('YmdHis');
         $baseDir = $dir;
 
-        chdir($baseDir);
+        $outputResult .= $systemTools->changeDirectory($baseDir) . PHP_EOL . PHP_EOL;
 
         if ($url) {
             $outputResult .= $systemTools->executeCommand('git clone ' . $url . ' ' . $newDir) . PHP_EOL . PHP_EOL;
@@ -94,9 +94,9 @@ class InstallCommand extends Command
             $cmds = $yaml['all'];
         }
 
-        $outputResult .= $systemTools->putEnvVar('TERM=VT100');
-        $outputResult .= $systemTools->putEnvVar('CURRENT_BRANCH=' . $branch);
-        $outputResult .= $systemTools->putEnvVar('CURRENT_BRANCH_SANITIZED=' . str_replace('/', '_', $branch));
+        $outputResult .= $systemTools->putEnvVar('TERM=VT100') . PHP_EOL . PHP_EOL;
+        $outputResult .= $systemTools->putEnvVar('CURRENT_BRANCH=' . $branch) . PHP_EOL . PHP_EOL;
+        $outputResult .= $systemTools->putEnvVar('CURRENT_BRANCH_SANITIZED=' . str_replace('/', '_', $branch)) . PHP_EOL . PHP_EOL;
 
         if ($url && isset($cmds['release']) && is_array($cmds['release'])) {
             if ($pullBranch) {

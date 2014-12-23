@@ -62,4 +62,23 @@ class SystemTools
 
         return $result;
     }
+
+    /**
+     * @param string $dir
+     * @param bool   $displayCommand
+     *
+     * @return string|OutputInterface
+     */
+    public function changeDirectory($dir, $displayCommand=true)
+    {
+        $result = '~> Changing current directory to ' . $dir;
+
+        if ($displayCommand) {
+            $this->_output->writeln('~> cd ' . $dir);
+        }
+
+        chdir($dir);
+
+        return $result;
+    }
 }
