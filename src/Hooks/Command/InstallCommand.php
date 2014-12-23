@@ -66,6 +66,8 @@ class InstallCommand extends Command
                 $pullBranch = $infos['pull-branch'];
                 $pullRepository = $infos['pull-repository'];
                 $branch = $infos['branch'];
+            } else {
+                throw new \Exception('No SHA record found in the directory.');
             }
         }
 
