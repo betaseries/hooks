@@ -35,4 +35,35 @@ class ServiceTools
             ],
         ]);
     }
+
+    /**
+     * @param string $repository Repository
+     * @param string $SHA        SHA
+     *
+     * @return bool
+     */
+    public static function hasOnlyGreenGitHubStatuses($repository, $SHA)
+    {
+        $config = ConfigTools::getLocalConfig(['github' => ['token' => null]]);
+        $client = new Client();
+
+        $response = $client->get('https://api.github.com/repos/' . $repository . '/commits/' . $SHA . '/status', [
+            'headers' => [
+                'Authorization' => 'token ' . $config['github']['token'],
+            ],
+        ]);
+
+        $json = $response->json();
+
+        foreach ($json['statuses'] as $status) {
+            if ($status['context'] == 'betacie/hooks') {
+                continue;
+            }
+            if ($status['state'] !== 'success') {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

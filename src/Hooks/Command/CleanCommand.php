@@ -69,6 +69,7 @@ class CleanCommand extends Command
 
         $outputResult .= $systemTools->changeDirectory($dir . '/..') . PHP_EOL . PHP_EOL;
         $outputResult .= $systemTools->executeCommand('rm -Rf ' . $dir) . PHP_EOL . PHP_EOL;
+        $systemTools->cleanRecordedSHAs($dir . '/../..');
 
         if (!$silent && isset($yaml['emails']) && is_array($yaml['emails'])) {
             $config = ConfigTools::getLocalConfig([

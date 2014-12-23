@@ -84,4 +84,47 @@ class SystemTools
 
         return $result;
     }
+
+    /**
+     * @param string $dir
+     * @param string $SHA
+     * @param array  $infos
+     */
+    public function recordSHA($dir, $SHA, array $infos)
+    {
+        file_put_contents($dir . '/.sha-' . $SHA, json_encode($infos));
+    }
+
+    /**
+     * @param string $dir
+     * @param string $SHA
+     *
+     * @return bool|mixed
+     */
+    public function getRecordedSHA($dir, $SHA)
+    {
+        if (!file_exists($dir . '/.sha-' . $SHA)) {
+            return false;
+        }
+
+        $json = json_decode(file_get_contents($dir . '/.' . $SHA), true);
+
+        return $json;
+    }
+
+    /**
+     * @param string $dir
+     */
+    public function cleanRecordedSHAs($dir)
+    {
+        $files = glob($dir . '/.sha-*');
+
+        foreach ($files as $file) {
+            $infos = json_decode(file_get_contents($file), true);
+
+            if (!is_dir($infos['dir'])) {
+                unlink($file);
+            }
+        }
+    }
 }

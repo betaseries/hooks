@@ -31,6 +31,7 @@ class InstallCommand extends Command
         $this->addOption('pull-branch', null, InputOption::VALUE_REQUIRED, 'Pull Request branch name.', null);
         $this->addOption('pull-sha', null, InputOption::VALUE_REQUIRED, 'Pull Request SHA for status.', null);
         $this->addOption('pull-repository', null, InputOption::VALUE_REQUIRED, 'Pull Request Repository for status.', null);
+        $this->addOption('pull-force', null, InputOption::VALUE_NONE, 'Don\'t wait for all statuses to succeed.');
         $this->addOption('url', 'u', InputOption::VALUE_OPTIONAL, 'Git clone URL.', null);
         $this->addOption('silent', null, InputOption::VALUE_NONE, 'No notification.');
         $this->addArgument('branch', InputArgument::OPTIONAL, 'Branch name.', null);
@@ -55,13 +56,42 @@ class InstallCommand extends Command
         $pullBranch = $input->getOption('pull-branch');
         $pullSHA = $input->getOption('pull-sha');
         $pullRepository = $input->getOption('pull-repository');
-        $pullDir = str_replace('/', '-', $pullBranch);
+        $pullForce = $input->getOption('pull-force');
         $branch = $input->getArgument('branch');
+
+        if ($pullSHA && !$pullBranch) {
+            // Check if we recorded this SHA in the directory
+            if ($infos = $systemTools->getRecordedSHA($dir, $pullSHA)) {
+                $url = $infos['url'];
+                $pullBranch = $infos['pull-branch'];
+                $pullRepository = $infos['pull-repository'];
+                $branch = $infos['branch'];
+            }
+        }
+
+        $pullDir = str_replace('/', '-', $pullBranch);
 
         if (!$branch) {
             $branch = trim(substr(file_get_contents($dir . '/.git/HEAD'), 16));
             if (empty($branch)) {
                 $branch = 'master';
+            }
+        }
+
+        if (!$pullForce) {
+            if (!ServiceTools::hasOnlyGreenGitHubStatuses($pullRepository, $pullSHA)) {
+                ServiceTools::sendGitHubStatus($pullRepository, $pullSHA, 'pending', null, 'Waiting for all statuses to succeed.');
+
+                $infos = [
+                    'dir' => $dir,
+                    'url' => $url,
+                    'pull-branch' => $pullBranch,
+                    'pull-repository' => $pullRepository,
+                    'branch' => $branch,
+                ];
+                $systemTools->recordSHA($dir, $pullSHA, $infos);
+
+                return null;
             }
         }
 
