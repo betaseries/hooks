@@ -77,7 +77,7 @@ class InstallCommand extends Command
         if ($url) {
             $outputResult .= $systemTools->executeCommand('git clone ' . $url . ' ' . $newDir) . PHP_EOL . PHP_EOL;
             $dir .= '/' . $newDir;
-            chdir($dir);
+            $outputResult .= $systemTools->changeDirectory($dir) . PHP_EOL . PHP_EOL;
             if ($pullBranch) {
                 $outputResult .= $systemTools->executeCommand('git checkout ' . $pullBranch) . PHP_EOL . PHP_EOL;
             } else {
@@ -124,7 +124,7 @@ class InstallCommand extends Command
             }
 
             rename($baseDir . '/' . $newDir, $repoBaseDir . '/releases/' . $newDir);
-            chdir($repoBaseDir . '/releases/' . $newDir);
+            $outputResult .= $systemTools->changeDirectory($repoBaseDir . '/releases/' . $newDir) . PHP_EOL . PHP_EOL;
         } elseif ($url) {
             throw new \Exception('You cannot set a Git clone URL without any release info.');
         }
