@@ -14,6 +14,9 @@ class SystemTools
     /** @var OutputInterface */
     private $_output;
 
+    /**
+     * @param OutputInterface $output
+     */
     public function __construct(OutputInterface $output)
     {
         $this->_output = $output;
