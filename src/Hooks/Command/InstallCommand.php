@@ -78,7 +78,7 @@ class InstallCommand extends Command
             }
         }
 
-        if (!$pullForce) {
+        if ($pullRepository && $pullSHA && !$pullForce) {
             if (!ServiceTools::hasOnlyGreenGitHubStatuses($pullRepository, $pullSHA)) {
                 ServiceTools::sendGitHubStatus($pullRepository, $pullSHA, 'pending', null, 'Waiting for all statuses to succeed.');
 
