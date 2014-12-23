@@ -95,8 +95,14 @@ class InstallCommand extends Command
         }
 
         $outputResult .= $systemTools->putEnvVar('TERM=VT100') . PHP_EOL . PHP_EOL;
-        $outputResult .= $systemTools->putEnvVar('CURRENT_BRANCH=' . $branch) . PHP_EOL . PHP_EOL;
-        $outputResult .= $systemTools->putEnvVar('CURRENT_BRANCH_SANITIZED=' . str_replace('/', '_', $branch)) . PHP_EOL . PHP_EOL;
+
+        if ($pullBranch) {
+            $outputResult .= $systemTools->putEnvVar('CURRENT_BRANCH=' . $pullBranch) . PHP_EOL . PHP_EOL;
+            $outputResult .= $systemTools->putEnvVar('CURRENT_BRANCH_SANITIZED=' . str_replace('/', '_', $pullBranch)) . PHP_EOL . PHP_EOL;
+        } else {
+            $outputResult .= $systemTools->putEnvVar('CURRENT_BRANCH=' . $branch) . PHP_EOL . PHP_EOL;
+            $outputResult .= $systemTools->putEnvVar('CURRENT_BRANCH_SANITIZED=' . str_replace('/', '_', $branch)) . PHP_EOL . PHP_EOL;
+        }
 
         if ($url && isset($cmds['release']) && is_array($cmds['release'])) {
             if ($pullBranch) {
