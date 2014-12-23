@@ -107,7 +107,7 @@ class SystemTools
             return false;
         }
 
-        $json = json_decode(file_get_contents($dir . '/.' . $SHA), true);
+        $json = json_decode(file_get_contents($dir . '/.sha-' . $SHA), true);
 
         return $json;
     }
