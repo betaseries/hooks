@@ -79,7 +79,11 @@ class WorkerJobCommand extends Command
             if ($job) {
                 $details = json_decode($job[1], true);
                 try {
-                    $output->writeln('<info>[' . date('c') . '] New job started.</info>');
+                    $argsCli = null;
+                    foreach ($details['args'] as $arg => $value) {
+                        $argsCli .= $arg . '=' . $value . ' ';
+                    }
+                    $output->writeln('<info>[' . date('c') . '] New job started: ' . $details['command'] . ' ' . trim($argsCli) . '</info>');
 
                     switch ($details['command']) {
                         case 'install':
