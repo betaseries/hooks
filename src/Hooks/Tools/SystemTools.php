@@ -36,12 +36,16 @@ class SystemTools
             $this->_output->writeln('~> ' . $cmd);
         }
 
-        exec($cmd . ' 2>&1', $outputAndErrors);
+        exec($cmd . ' 2>&1', $outputAndErrors, $returnStatus);
 
         $trimmed = trim(implode(PHP_EOL, $outputAndErrors));
 
         if (!empty($trimmed)) {
             $result .= PHP_EOL . $trimmed;
+        }
+
+        if (0 !== $returnStatus) {
+            $result .= PHP_EOL . 'Returned code: ' . $returnStatus;
         }
 
         return $result;
