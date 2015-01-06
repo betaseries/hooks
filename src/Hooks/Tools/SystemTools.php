@@ -102,6 +102,15 @@ class SystemTools
     /**
      * @param string $dir
      * @param string $SHA
+     */
+    public function deleteRecordedSHA($dir, $SHA)
+    {
+        @unlink($dir . '/.sha-' . $SHA);
+    }
+
+    /**
+     * @param string $dir
+     * @param string $SHA
      *
      * @return bool|mixed
      */

@@ -103,6 +103,8 @@ class InstallCommand extends Command
                 $systemTools->recordSHA($dir, $pullSHA, $infos);
 
                 return null;
+            } else {
+                $systemTools->deleteRecordedSHA($dir, $pullSHA);
             }
         }
 
