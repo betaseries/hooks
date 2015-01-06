@@ -39,10 +39,11 @@ class ServiceTools
     /**
      * @param string $repository Repository
      * @param string $SHA        SHA
+     * @param array  $statuses   Statuses
      *
      * @return bool
      */
-    public static function hasOnlyGreenGitHubStatuses($repository, $SHA)
+    public static function hasOnlyGreenGitHubStatuses($repository, $SHA, $statuses=[])
     {
         $config = ConfigTools::getLocalConfig(['github' => ['token' => null]]);
         $client = new Client();
@@ -55,15 +56,29 @@ class ServiceTools
 
         $json = $response->json();
 
-        foreach ($json['statuses'] as $status) {
-            if ($status['context'] == 'betacie/hooks') {
-                continue;
+        if (count($statuses) == 0) {
+            foreach ($json['statuses'] as $status) {
+                if ($status['context'] == 'betacie/hooks') {
+                    continue;
+                }
+                if ($status['state'] !== 'success') {
+                    return false;
+                }
             }
-            if ($status['state'] !== 'success') {
-                return false;
-            }
-        }
 
-        return true;
+            return true;
+        } else {
+            $greens = 0;
+            foreach ($json['statuses'] as $status) {
+                if ($status['state'] === 'success' && in_array($status['context'], $statuses)) {
+                    $greens++;
+                }
+                if ($greens === count($statuses)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }

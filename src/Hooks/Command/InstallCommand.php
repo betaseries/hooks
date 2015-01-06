@@ -80,8 +80,17 @@ class InstallCommand extends Command
             }
         }
 
+        $yaml = ConfigTools::getRepositoryConfig($dir);
+
         if ($pullRepository && $pullSHA && !$pullForce) {
-            if (!ServiceTools::hasOnlyGreenGitHubStatuses($pullRepository, $pullSHA)) {
+            $statuses = [];
+            if (isset($yaml['pulls']) && is_array($yaml['pulls']) && isset($yaml['pulls']['statuses']) && is_array($yaml['pulls']['statuses'])) {
+                foreach ($yaml['pulls']['statuses'] as $status) {
+                    $statuses[] = $status;
+                }
+            }
+
+            if (!ServiceTools::hasOnlyGreenGitHubStatuses($pullRepository, $pullSHA, $statuses)) {
                 ServiceTools::sendGitHubStatus($pullRepository, $pullSHA, 'pending', null, 'Waiting for all statuses to succeed.');
 
                 $infos = [
@@ -117,7 +126,6 @@ class InstallCommand extends Command
             }
         }
 
-        $yaml = ConfigTools::getRepositoryConfig($dir);
         $cmds = [];
 
         if (isset($yaml[$branch]) && is_array($yaml[$branch])) {
