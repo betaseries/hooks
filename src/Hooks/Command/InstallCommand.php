@@ -80,7 +80,11 @@ class InstallCommand extends Command
             }
         }
 
-        $yaml = ConfigTools::getRepositoryConfig($dir);
+        try {
+            $yaml = ConfigTools::getRepositoryConfig($dir);
+        } catch (\Exception $e) {
+            $yaml = [];
+        }
 
         if ($pullRepository && $pullSHA && !$pullForce) {
             $statuses = [];
@@ -88,9 +92,11 @@ class InstallCommand extends Command
                 foreach ($yaml['pulls']['statuses'] as $status) {
                     $statuses[] = $status;
                 }
+                $output->writeln('Required green statuses: ' . implode(', ', $statuses) . '.');
             }
 
             if (!ServiceTools::hasOnlyGreenGitHubStatuses($pullRepository, $pullSHA, $statuses)) {
+                $output->writeln('All required statuses are not green, waiting.');
                 ServiceTools::sendGitHubStatus($pullRepository, $pullSHA, 'pending', null, 'Waiting for all statuses to succeed.');
 
                 $infos = [
@@ -104,6 +110,7 @@ class InstallCommand extends Command
 
                 return null;
             } else {
+                $output->writeln('All required statuses are green.');
                 $systemTools->deleteRecordedSHA($dir, $pullSHA);
             }
         }
@@ -112,6 +119,7 @@ class InstallCommand extends Command
             ServiceTools::sendGitHubStatus($pullRepository, $pullSHA, 'pending', null, 'Shipping…');
         }
 
+        $yaml = ConfigTools::getRepositoryConfig($dir);
         $newDir = date('YmdHis');
         $baseDir = $dir;
 
