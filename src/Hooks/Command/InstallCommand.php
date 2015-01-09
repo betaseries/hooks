@@ -80,11 +80,24 @@ class InstallCommand extends Command
             }
         }
 
-        try {
-            $yaml = ConfigTools::getRepositoryConfig($dir);
-        } catch (\Exception $e) {
-            $yaml = [];
+        $newDir = date('YmdHis');
+        $baseDir = $dir;
+
+        $outputResult .= $systemTools->changeDirectory($baseDir) . PHP_EOL . PHP_EOL;
+
+        if ($url) {
+            $outputResult .= $systemTools->executeCommand('git clone ' . $url . ' ' . $newDir) . PHP_EOL . PHP_EOL;
+            $dir .= '/' . $newDir;
+            $outputResult .= $systemTools->changeDirectory($dir) . PHP_EOL . PHP_EOL;
+            if ($pullBranch) {
+                $outputResult .= $systemTools->executeCommand('git checkout ' . $pullBranch) . PHP_EOL . PHP_EOL;
+            } else {
+                $outputResult .= $systemTools->executeCommand('git checkout ' . $branch) . PHP_EOL . PHP_EOL;
+            }
         }
+
+        $yaml = ConfigTools::getRepositoryConfig($dir);
+        $cmds = [];
 
         if ($pullRepository && $pullSHA && !$pullForce) {
             $statuses = [];
@@ -118,25 +131,6 @@ class InstallCommand extends Command
         if ($pullRepository && $pullSHA) {
             ServiceTools::sendGitHubStatus($pullRepository, $pullSHA, 'pending', null, 'Shipping…');
         }
-
-        $yaml = ConfigTools::getRepositoryConfig($dir);
-        $newDir = date('YmdHis');
-        $baseDir = $dir;
-
-        $outputResult .= $systemTools->changeDirectory($baseDir) . PHP_EOL . PHP_EOL;
-
-        if ($url) {
-            $outputResult .= $systemTools->executeCommand('git clone ' . $url . ' ' . $newDir) . PHP_EOL . PHP_EOL;
-            $dir .= '/' . $newDir;
-            $outputResult .= $systemTools->changeDirectory($dir) . PHP_EOL . PHP_EOL;
-            if ($pullBranch) {
-                $outputResult .= $systemTools->executeCommand('git checkout ' . $pullBranch) . PHP_EOL . PHP_EOL;
-            } else {
-                $outputResult .= $systemTools->executeCommand('git checkout ' . $branch) . PHP_EOL . PHP_EOL;
-            }
-        }
-
-        $cmds = [];
 
         if (isset($yaml[$branch]) && is_array($yaml[$branch])) {
             $cmds = $yaml[$branch];
