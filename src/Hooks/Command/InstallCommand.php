@@ -113,18 +113,23 @@ class InstallCommand extends Command
                 ServiceTools::sendGitHubStatus($pullRepository, $pullSHA, 'pending', null, 'Waiting for all statuses to succeed.');
 
                 $infos = [
-                    'dir' => $dir,
+                    'dir' => $baseDir,
                     'url' => $url,
                     'pull-branch' => $pullBranch,
                     'pull-repository' => $pullRepository,
                     'branch' => $branch,
                 ];
-                $systemTools->recordSHA($dir, $pullSHA, $infos);
+                $systemTools->recordSHA($baseDir, $pullSHA, $infos);
+
+                // If we cloned the git repo, remove it, it's useless.
+                if ($baseDir != $dir) {
+                    $outputResult .= $systemTools->executeCommand('rm -Rf ' . $dir) . PHP_EOL . PHP_EOL;
+                }
 
                 return null;
             } else {
                 $output->writeln('All required statuses are green.');
-                $systemTools->deleteRecordedSHA($dir, $pullSHA);
+                $systemTools->deleteRecordedSHA($baseDir, $pullSHA);
             }
         }
 
