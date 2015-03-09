@@ -134,8 +134,9 @@ class SystemTools
 
         foreach ($files as $file) {
             $infos = json_decode(file_get_contents($file), true);
+            $dir = $infos['dir'] . '/pulls/' . str_replace('/', '-', $infos['pull-branch']);
 
-            if (!is_dir($infos['dir'])) {
+            if (!is_dir($dir)) {
                 unlink($file);
             }
         }
