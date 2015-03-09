@@ -26,6 +26,7 @@ class CleanCommand extends Command
         $this->setName('clean');
         $this->setDescription('Clean Pull Request directory.');
         $this->addOption('dir', 'd', InputOption::VALUE_OPTIONAL, 'Pull Request main directory.', '.');
+        $this->addOption('pull-branch', null, InputOption::VALUE_OPTIONAL, 'Pull Request branch name.', null);
         $this->addOption('silent', null, InputOption::VALUE_NONE, 'No notification.');
         $this->addArgument('branch', InputArgument::REQUIRED, 'Parent branch name.');
     }
@@ -46,9 +47,10 @@ class CleanCommand extends Command
         $dir = $input->getOption('dir');
         $silent = $input->getOption('silent');
         $branch = $input->getArgument('branch');
+        $pullBranch = $input->getOption('pull-branch');
 
-        $outputResult .= $systemTools->putEnvVar('CURRENT_BRANCH=' . $branch) . PHP_EOL . PHP_EOL;
-        $outputResult .= $systemTools->putEnvVar('CURRENT_BRANCH_SANITIZED=' . str_replace('/', '_', $branch)) . PHP_EOL . PHP_EOL;
+        $outputResult .= $systemTools->putEnvVar('CURRENT_BRANCH=' . $pullBranch) . PHP_EOL . PHP_EOL;
+        $outputResult .= $systemTools->putEnvVar('CURRENT_BRANCH_SANITIZED=' . str_replace('/', '_', $pullBranch)) . PHP_EOL . PHP_EOL;
 
         $yaml = ConfigTools::getRepositoryConfig($dir . '/current');
         $cmds = [];
