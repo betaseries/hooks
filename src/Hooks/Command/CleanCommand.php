@@ -68,6 +68,10 @@ class CleanCommand extends Command
         }
 
         $outputResult .= $systemTools->changeDirectory($dir . '/..') . PHP_EOL . PHP_EOL;
+
+        // Wait for all commands to be executed before removing the directory (lsof purpose)
+        sleep(5);
+
         $outputResult .= $systemTools->executeCommand('rm -Rf ' . $dir) . PHP_EOL . PHP_EOL;
         $systemTools->cleanRecordedSHAs($dir . '/../..');
 
