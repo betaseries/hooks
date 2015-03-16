@@ -190,6 +190,12 @@ class InstallCommand extends Command
             }
         }
 
+        if ($pullBranch && isset($yaml['pulls']) && is_array($yaml['pulls']) && isset($yaml['pulls']['env']) && is_array($yaml['pulls']['env'])) {
+            foreach ($yaml['pulls']['env'] as $env) {
+                $outputResult .= $systemTools->putEnvVar($env, true) . PHP_EOL . PHP_EOL;
+            }
+        }
+
         if ($pullBranch && isset($yaml['pulls']) && is_array($yaml['pulls']) && isset($yaml['pulls']['open']) && is_array($yaml['pulls']['open'])) {
             foreach ($yaml['pulls']['open'] as $cmd) {
                 $outputResult .= $systemTools->executeCommand($cmd, $output, true) . PHP_EOL . PHP_EOL;
