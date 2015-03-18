@@ -25,7 +25,7 @@ class CleanCommand extends Command
     {
         $this->setName('clean');
         $this->setDescription('Clean Pull Request directory.');
-        $this->addOption('dir', 'd', InputOption::VALUE_OPTIONAL, 'Pull Request main directory.', '.');
+        $this->addOption('dir', 'd', InputOption::VALUE_REQUIRED, 'Pull Request main directory.');
         $this->addOption('pull-branch', null, InputOption::VALUE_OPTIONAL, 'Pull Request branch name.', null);
         $this->addOption('silent', null, InputOption::VALUE_NONE, 'No notification.');
         $this->addArgument('branch', InputArgument::REQUIRED, 'Parent branch name.');
@@ -42,15 +42,18 @@ class CleanCommand extends Command
     {
         $systemTools = new SystemTools($output);
 
-        $outputResult = null;
-
         $dir = $input->getOption('dir');
         $silent = $input->getOption('silent');
         $branch = $input->getArgument('branch');
         $pullBranch = $input->getOption('pull-branch');
 
-        $outputResult .= $systemTools->putEnvVar('CURRENT_BRANCH=' . $pullBranch) . PHP_EOL . PHP_EOL;
-        $outputResult .= $systemTools->putEnvVar('CURRENT_BRANCH_SANITIZED=' . str_replace('/', '_', $pullBranch)) . PHP_EOL . PHP_EOL;
+        if (!$silent) {
+            $outputFile = $dir . '/../../logs/clean-' . str_replace('/', '_', $pullBranch) . '.log';
+            $systemTools->setOutputFile($outputFile);
+        }
+
+        $systemTools->putEnvVar('CURRENT_BRANCH=' . $pullBranch);
+        $systemTools->putEnvVar('CURRENT_BRANCH_SANITIZED=' . str_replace('/', '_', $pullBranch));
 
         $yaml = ConfigTools::getRepositoryConfig($dir . '/current');
         $cmds = [];
@@ -61,29 +64,31 @@ class CleanCommand extends Command
             $cmds = $yaml['all'];
         }
 
-        $outputResult .= $systemTools->changeDirectory($dir . '/current') . PHP_EOL . PHP_EOL;
 
+        $systemTools->changeDirectory($dir . '/current');
         if (isset($yaml['pulls']) && is_array($yaml['pulls']) && isset($yaml['pulls']['close']) && is_array($yaml['pulls']['close'])) {
             foreach ($yaml['pulls']['close'] as $cmd) {
-                $outputResult .= $systemTools->executeCommand($cmd, $output, true) . PHP_EOL . PHP_EOL;
+                $systemTools->executeCommand($cmd, $output, true);
             }
         }
 
-        $outputResult .= $systemTools->changeDirectory($dir . '/..') . PHP_EOL . PHP_EOL;
+        $systemTools->changeDirectory($dir . '/..');
 
         // Wait for all commands to be executed before removing the directory (lsof purpose)
         sleep(5);
 
-        $outputResult .= $systemTools->executeCommand('rm -Rf ' . $dir) . PHP_EOL . PHP_EOL;
+        $systemTools->executeCommand('rm -Rf ' . $dir);
         $systemTools->cleanRecordedSHAs($dir . '/../..');
 
-        if (!$silent && isset($yaml['emails']) && is_array($yaml['emails'])) {
+        if (!$silent && isset($yaml['emails']) && is_array($yaml['emails']) && null !== $outputFile) {
             $config = ConfigTools::getLocalConfig([
                 'email' => [
                     'sender' => null,
                     'address' => null,
                 ]
             ]);
+
+            $outputResult = $systemTools->cleanAnsiColors(file_get_contents($outputFile));
 
             if (isset($yaml['emails']) && is_array($yaml['emails'])) {
                 $transport = \Swift_MailTransport::newInstance();

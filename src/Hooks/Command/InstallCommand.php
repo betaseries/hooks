@@ -48,8 +48,6 @@ class InstallCommand extends Command
     {
         $systemTools = new SystemTools($output);
 
-        $outputResult = null;
-
         $dir = $input->getOption('dir');
         $url = $input->getOption('url');
         $silent = $input->getOption('silent');
@@ -83,16 +81,21 @@ class InstallCommand extends Command
         $newDir = date('YmdHis');
         $baseDir = $dir;
 
-        $outputResult .= $systemTools->changeDirectory($baseDir) . PHP_EOL . PHP_EOL;
+        if (!$silent) {
+            $outputFile = $dir . '/logs/install-' . $newDir . '.log';
+            $systemTools->setOutputFile($outputFile);
+        }
+
+        $systemTools->changeDirectory($baseDir);
 
         if ($url) {
-            $outputResult .= $systemTools->executeCommand('git clone ' . $url . ' ' . $newDir) . PHP_EOL . PHP_EOL;
+            $systemTools->executeCommand('git clone ' . $url . ' ' . $newDir);
             $dir .= '/' . $newDir;
-            $outputResult .= $systemTools->changeDirectory($dir) . PHP_EOL . PHP_EOL;
+            $systemTools->changeDirectory($dir);
             if ($pullBranch) {
-                $outputResult .= $systemTools->executeCommand('git checkout ' . $pullBranch) . PHP_EOL . PHP_EOL;
+                $systemTools->executeCommand('git checkout ' . $pullBranch);
             } else {
-                $outputResult .= $systemTools->executeCommand('git checkout ' . $branch) . PHP_EOL . PHP_EOL;
+                $systemTools->executeCommand('git checkout ' . $branch);
             }
         }
 
@@ -123,7 +126,7 @@ class InstallCommand extends Command
 
                 // If we cloned the git repo, remove it, it's useless.
                 if ($baseDir != $dir) {
-                    $outputResult .= $systemTools->executeCommand('rm -Rf ' . $dir) . PHP_EOL . PHP_EOL;
+                    $systemTools->executeCommand('rm -Rf ' . $dir);
                 }
 
                 return null;
@@ -143,14 +146,14 @@ class InstallCommand extends Command
             $cmds = $yaml['all'];
         }
 
-        $outputResult .= $systemTools->putEnvVar('TERM=VT100') . PHP_EOL . PHP_EOL;
+        $systemTools->putEnvVar('TERM=VT100');
 
         if ($pullBranch) {
-            $outputResult .= $systemTools->putEnvVar('CURRENT_BRANCH=' . $pullBranch) . PHP_EOL . PHP_EOL;
-            $outputResult .= $systemTools->putEnvVar('CURRENT_BRANCH_SANITIZED=' . str_replace('/', '_', $pullBranch)) . PHP_EOL . PHP_EOL;
+            $systemTools->putEnvVar('CURRENT_BRANCH=' . $pullBranch);
+            $systemTools->putEnvVar('CURRENT_BRANCH_SANITIZED=' . str_replace('/', '_', $pullBranch));
         } else {
-            $outputResult .= $systemTools->putEnvVar('CURRENT_BRANCH=' . $branch) . PHP_EOL . PHP_EOL;
-            $outputResult .= $systemTools->putEnvVar('CURRENT_BRANCH_SANITIZED=' . str_replace('/', '_', $branch)) . PHP_EOL . PHP_EOL;
+            $systemTools->putEnvVar('CURRENT_BRANCH=' . $branch);
+            $systemTools->putEnvVar('CURRENT_BRANCH_SANITIZED=' . str_replace('/', '_', $branch));
         }
 
         if ($url && isset($cmds['release']) && is_array($cmds['release'])) {
@@ -179,32 +182,32 @@ class InstallCommand extends Command
             }
 
             rename($baseDir . '/' . $newDir, $repoBaseDir . '/releases/' . $newDir);
-            $outputResult .= $systemTools->changeDirectory($repoBaseDir . '/releases/' . $newDir) . PHP_EOL . PHP_EOL;
+            $systemTools->changeDirectory($repoBaseDir . '/releases/' . $newDir);
         } elseif ($url) {
             throw new \Exception('You cannot set a Git clone URL without any release info.');
         }
 
         if (isset($cmds['env']) && is_array($cmds['env'])) {
             foreach ($cmds['env'] as $env) {
-                $outputResult .= $systemTools->putEnvVar($env, true) . PHP_EOL . PHP_EOL;
+                $systemTools->putEnvVar($env, true);
             }
         }
 
         if ($pullBranch && isset($yaml['pulls']) && is_array($yaml['pulls']) && isset($yaml['pulls']['env']) && is_array($yaml['pulls']['env'])) {
             foreach ($yaml['pulls']['env'] as $env) {
-                $outputResult .= $systemTools->putEnvVar($env, true) . PHP_EOL . PHP_EOL;
+                $systemTools->putEnvVar($env, true);
             }
         }
 
         if ($pullBranch && isset($yaml['pulls']) && is_array($yaml['pulls']) && isset($yaml['pulls']['open']) && is_array($yaml['pulls']['open'])) {
             foreach ($yaml['pulls']['open'] as $cmd) {
-                $outputResult .= $systemTools->executeCommand($cmd, $output, true) . PHP_EOL . PHP_EOL;
+                $systemTools->executeCommand($cmd, $output, true);
             }
         }
 
         if (isset($cmds['commands']) && is_array($cmds['commands'])) {
             foreach ($cmds['commands'] as $cmd) {
-                $outputResult .= $systemTools->executeCommand($cmd, $output, true) . PHP_EOL . PHP_EOL;
+                $systemTools->executeCommand($cmd, $output, true);
             }
         }
 
@@ -212,12 +215,12 @@ class InstallCommand extends Command
             if ($url && isset($cmds['release']['shared']) && is_array($cmds['release']['shared'])) {
                 foreach ($cmds['release']['shared'] as $item) {
                     $output->writeln('Linking shared item ' . $item);
-                    $outputResult .= $systemTools->executeCommand('rm -Rf ' . $repoBaseDir . '/releases/' . $newDir . $item . ' && ln -fs ' . $repoBaseDir . '/shared' . $item . ' ' . $repoBaseDir . '/releases/' . $newDir . $item) . PHP_EOL . PHP_EOL;
+                    $systemTools->executeCommand('rm -Rf ' . $repoBaseDir . '/releases/' . $newDir . $item . ' && ln -fs ' . $repoBaseDir . '/shared' . $item . ' ' . $repoBaseDir . '/releases/' . $newDir . $item);
                 }
             }
             if (isset($cmds['release']['after']) && is_array($cmds['release']['after'])) {
                 foreach ($cmds['release']['after'] as $cmd) {
-                    $outputResult .= $systemTools->executeCommand($cmd) . PHP_EOL . PHP_EOL;
+                    $systemTools->executeCommand($cmd);
                 }
             }
             if ($url) {
@@ -229,15 +232,15 @@ class InstallCommand extends Command
                         $i++;
                         if ($i > $cmds['release']['keep']) {
                             $output->writeln('Removing extra release ' . basename($dir));
-                            $outputResult .= $systemTools->executeCommand('rm -Rf ' . $dir) . PHP_EOL . PHP_EOL;
+                            $systemTools->executeCommand('rm -Rf ' . $dir);
                         }
                     }
                 }
                 $output->writeln('Linking release ' . $newDir);
-                $outputResult .= $systemTools->executeCommand('rm -f ' . $repoBaseDir . '/current && ln -fs ' . $repoBaseDir . '/releases/' . $newDir . ' ' . $repoBaseDir . '/current') . PHP_EOL . PHP_EOL;
+                $systemTools->executeCommand('rm -f ' . $repoBaseDir . '/current && ln -fs ' . $repoBaseDir . '/releases/' . $newDir . ' ' . $repoBaseDir . '/current');
             } elseif (is_array($cmds['release']['standalone'])) {
                 foreach ($cmds['release']['standalone'] as $cmd) {
-                    $outputResult .= $systemTools->executeCommand($cmd) . PHP_EOL . PHP_EOL;
+                    $systemTools->executeCommand($cmd);
                 }
             }
         }
@@ -248,17 +251,19 @@ class InstallCommand extends Command
 
         if (is_array($config) && isset($config['after']) && is_array($config['after'])) {
             foreach ($config['after'] as $cmd) {
-                $outputResult .= $systemTools->executeCommand($cmd, $output, true) . PHP_EOL . PHP_EOL;
+                $systemTools->executeCommand($cmd, $output, true);
             }
         }
 
-        if (!$silent && is_array($cmds['release'])) {
+        if (!$silent && is_array($cmds['release']) && null !== $outputFile) {
             $config = ConfigTools::getLocalConfig([
                 'email' => [
                     'sender' => null,
                     'address' => null,
                 ]
             ]);
+
+            $outputResult = $systemTools->cleanAnsiColors(file_get_contents($outputFile));
 
             exec('git log -1 --pretty=%B', $sysOutput);
             $lastCommit = trim(implode("\n", $sysOutput));

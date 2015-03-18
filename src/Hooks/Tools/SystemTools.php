@@ -13,6 +13,7 @@ class SystemTools
 {
     /** @var OutputInterface */
     private $_output;
+    private $_outputFile = null;
 
     /**
      * @param OutputInterface $output
@@ -20,6 +21,23 @@ class SystemTools
     public function __construct(OutputInterface $output)
     {
         $this->_output = $output;
+    }
+
+    /**
+     * @param string $outputFile
+     */
+    public function setOutputFile($outputFile)
+    {
+        $dir = dirname($outputFile);
+        if (!is_dir($dir)) {
+            mkdir($dir);
+        }
+
+        if (null !== $this->_outputFile && null !== $outputFile) {
+            rename($this->_outputFile, $outputFile);
+        }
+
+        $this->_outputFile = $outputFile;
     }
 
     /**
@@ -33,22 +51,20 @@ class SystemTools
         $result = '~> ' . $cmd;
 
         if ($displayCommand) {
-            $this->_output->writeln('~> ' . $cmd);
+            $this->_output->writeln($result);
         }
 
-        exec($cmd . ' 2>&1', $outputAndErrors, $returnStatus);
-
-        $trimmed = trim(implode(PHP_EOL, $outputAndErrors));
-
-        if (!empty($trimmed)) {
-            $result .= PHP_EOL . $trimmed;
+        if (null !== $this->_outputFile) {
+            file_put_contents($this->_outputFile, $result . PHP_EOL . PHP_EOL, FILE_APPEND);
+            exec($cmd . ' 2>&1 >> ' . $this->_outputFile, $output, $returnStatus);
+            file_put_contents($this->_outputFile, PHP_EOL, FILE_APPEND);
+        } else {
+            system($cmd . ' 2>&1', $returnStatus);
         }
 
         if (0 !== $returnStatus) {
-            $result .= PHP_EOL . 'Returned code: ' . $returnStatus;
+            $this->_output->writeln(PHP_EOL . 'Returned code: ' . $returnStatus);
         }
-
-        return $result;
     }
 
     /**
@@ -62,12 +78,14 @@ class SystemTools
         $result = '~> Setting environment variable ' . $env;
 
         if ($displayCommand) {
-            $this->_output->writeln('~> Setting environment variable ' . $env);
+            $this->_output->writeln($result);
+        }
+
+        if (null !== $this->_outputFile) {
+            file_put_contents($this->_outputFile, $result . PHP_EOL . PHP_EOL, FILE_APPEND);
         }
 
         putenv($env);
-
-        return $result;
     }
 
     /**
@@ -84,9 +102,11 @@ class SystemTools
             $this->_output->writeln('~> cd ' . $dir);
         }
 
-        chdir($dir);
+        if (null !== $this->_outputFile) {
+            file_put_contents($this->_outputFile, $result . PHP_EOL . PHP_EOL . '~> cd ' . $dir . PHP_EOL . PHP_EOL, FILE_APPEND);
+        }
 
-        return $result;
+        chdir($dir);
     }
 
     /**
@@ -140,5 +160,19 @@ class SystemTools
                 unlink($file);
             }
         }
+    }
+
+    /**
+     * @param string $content
+     *
+     * @return mixed
+     */
+    public function cleanAnsiColors($content)
+    {
+        $content = preg_replace('/\x1b(\[|\(|\))[;?0-9]*[0-9A-Za-z]/', "", $content);
+        $content = preg_replace('/\x1b(\[|\(|\))[;?0-9]*[0-9A-Za-z]/', "", $content);
+        $content = preg_replace('/[\x03|\x1a]/', "", $content);
+
+        return $content;
     }
 }
