@@ -237,7 +237,7 @@ class InstallCommand extends Command
                     }
                 }
                 $output->writeln('Linking release ' . $newDir);
-                $systemTools->executeCommand('rm -f ' . $repoBaseDir . '/current && ln -fs ' . $repoBaseDir . '/releases/' . $newDir . ' ' . $repoBaseDir . '/current');
+                $systemTools->executeCommand('ln -sf ' . $repoBaseDir . '/releases/' . $newDir . ' ' . $repoBaseDir . '/releases/current && mv ' . $repoBaseDir . '/releases/current ' . $repoBaseDir . '/');
             } elseif (is_array($cmds['release']['standalone'])) {
                 foreach ($cmds['release']['standalone'] as $cmd) {
                     $systemTools->executeCommand($cmd);
