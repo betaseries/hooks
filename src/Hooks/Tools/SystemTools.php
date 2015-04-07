@@ -81,11 +81,19 @@ class SystemTools
             $this->_output->writeln($result);
         }
 
+        $calculatedEnv = preg_replace_callback(
+            '/\$\{([^\}]+)\}/',
+            function ($matches) {
+                return getenv($matches[1]);
+            },
+            $env
+        );
+
         if (null !== $this->_outputFile) {
-            file_put_contents($this->_outputFile, $result . PHP_EOL . PHP_EOL, FILE_APPEND);
+            file_put_contents($this->_outputFile, $result . PHP_EOL . PHP_EOL . '~> ' . $calculatedEnv . PHP_EOL . PHP_EOL, FILE_APPEND);
         }
 
-        putenv($env);
+        putenv($calculatedEnv);
     }
 
     /**
