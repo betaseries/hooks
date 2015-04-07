@@ -69,7 +69,7 @@ class InstallCommand extends Command
             }
         }
 
-        $pullDir = str_replace('/', '-', $pullBranch);
+        $pullDir = $systemTools->sanitizeBranchName($pullBranch);
 
         if (!$branch) {
             $branch = trim(substr(file_get_contents($dir . '/.git/HEAD'), 16));
@@ -150,10 +150,10 @@ class InstallCommand extends Command
 
         if ($pullBranch) {
             $systemTools->putEnvVar('CURRENT_BRANCH=' . $pullBranch);
-            $systemTools->putEnvVar('CURRENT_BRANCH_SANITIZED=' . str_replace('/', '_', $pullBranch));
+            $systemTools->putEnvVar('CURRENT_BRANCH_SANITIZED=' . $systemTools->sanitizeBranchName($pullBranch));
         } else {
             $systemTools->putEnvVar('CURRENT_BRANCH=' . $branch);
-            $systemTools->putEnvVar('CURRENT_BRANCH_SANITIZED=' . str_replace('/', '_', $branch));
+            $systemTools->putEnvVar('CURRENT_BRANCH_SANITIZED=' . $systemTools->sanitizeBranchName($branch));
         }
 
         if ($url && isset($cmds['release']) && is_array($cmds['release'])) {

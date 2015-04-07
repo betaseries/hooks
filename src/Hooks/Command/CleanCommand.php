@@ -48,12 +48,12 @@ class CleanCommand extends Command
         $pullBranch = $input->getOption('pull-branch');
 
         if (!$silent) {
-            $outputFile = $dir . '/../../logs/clean-' . str_replace('/', '_', $pullBranch) . '.log';
+            $outputFile = $dir . '/../../logs/clean-' . $systemTools->sanitizeBranchName($pullBranch) . '.log';
             $systemTools->setOutputFile($outputFile);
         }
 
         $systemTools->putEnvVar('CURRENT_BRANCH=' . $pullBranch);
-        $systemTools->putEnvVar('CURRENT_BRANCH_SANITIZED=' . str_replace('/', '_', $pullBranch));
+        $systemTools->putEnvVar('CURRENT_BRANCH_SANITIZED=' . $systemTools->sanitizeBranchName($pullBranch));
 
         $yaml = ConfigTools::getRepositoryConfig($dir . '/current');
         $cmds = [];

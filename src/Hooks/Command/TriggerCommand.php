@@ -47,7 +47,7 @@ class TriggerCommand extends Command
 
         $branch = trim(substr(file_get_contents($dir . '/.git/HEAD'), 16));
         $systemTools->putEnvVar('CURRENT_BRANCH=' . $branch);
-        $systemTools->putEnvVar('CURRENT_BRANCH_SANITIZED=' . str_replace('/', '_', $branch));
+        $systemTools->putEnvVar('CURRENT_BRANCH_SANITIZED=' . $systemTools->sanitizeBranchName($branch));
 
         if (isset($yaml['triggers'][$trigger]) && is_array($yaml['triggers'][$trigger])) {
             foreach ($yaml['triggers'][$trigger] as $cmd) {

@@ -162,7 +162,7 @@ class SystemTools
 
         foreach ($files as $file) {
             $infos = json_decode(file_get_contents($file), true);
-            $dir = $infos['dir'] . '/pulls/' . str_replace('/', '-', $infos['pull-branch']);
+            $dir = $infos['dir'] . '/pulls/' . $this->sanitizeBranchName($infos['pull-branch']);
 
             if (!is_dir($dir)) {
                 unlink($file);
@@ -182,5 +182,15 @@ class SystemTools
         $content = preg_replace('/[\x03|\x1a]/', "", $content);
 
         return $content;
+    }
+
+    /**
+     * @param string $branch
+     *
+     * @return string
+     */
+    public function sanitizeBranchName($branch)
+    {
+        return str_replace('/', '-', $branch);
     }
 }
