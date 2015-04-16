@@ -146,6 +146,11 @@ class InstallCommand extends Command
             $cmds = $yaml['all'];
         }
 
+        // Overridings commands with pull commands
+        if ($pullBranch && isset($yaml['pulls']['commands']) && is_array($yaml['pulls']['commands'])) {
+            $cmds['commands'] = $yaml['pulls']['commands'];
+        }
+
         $systemTools->putEnvVar('TERM=VT100');
 
         if ($pullBranch) {
