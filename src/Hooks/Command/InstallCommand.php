@@ -210,6 +210,13 @@ class InstallCommand extends Command
             }
         }
 
+        if ($url && isset($cmds['release']['shared']) && is_array($cmds['release']['shared'])) {
+            foreach ($cmds['release']['shared'] as $item) {
+                $output->writeln('Linking shared item ' . $item);
+                $systemTools->executeCommand('rm -Rf ' . $repoBaseDir . '/releases/' . $newDir . $item . ' && ln -fs ' . $repoBaseDir . '/shared' . $item . ' ' . $repoBaseDir . '/releases/' . $newDir . $item);
+            }
+        }
+
         if (isset($cmds['commands']) && is_array($cmds['commands'])) {
             foreach ($cmds['commands'] as $cmd) {
                 $systemTools->executeCommand($cmd, $output, true);
@@ -217,12 +224,6 @@ class InstallCommand extends Command
         }
 
         if (is_array($cmds['release'])) {
-            if ($url && isset($cmds['release']['shared']) && is_array($cmds['release']['shared'])) {
-                foreach ($cmds['release']['shared'] as $item) {
-                    $output->writeln('Linking shared item ' . $item);
-                    $systemTools->executeCommand('rm -Rf ' . $repoBaseDir . '/releases/' . $newDir . $item . ' && ln -fs ' . $repoBaseDir . '/shared' . $item . ' ' . $repoBaseDir . '/releases/' . $newDir . $item);
-                }
-            }
             if (isset($cmds['release']['after']) && is_array($cmds['release']['after'])) {
                 foreach ($cmds['release']['after'] as $cmd) {
                     $systemTools->executeCommand($cmd);
