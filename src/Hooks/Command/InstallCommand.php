@@ -32,6 +32,7 @@ class InstallCommand extends Command
         $this->addOption('pull-sha', null, InputOption::VALUE_REQUIRED, 'Pull Request SHA for status.', null);
         $this->addOption('pull-repository', null, InputOption::VALUE_REQUIRED, 'Pull Request Repository for status.', null);
         $this->addOption('pull-force', null, InputOption::VALUE_NONE, 'Don\'t wait for all statuses to succeed.');
+        $this->addOption('pull-id', null, InputOption::VALUE_REQUIRED, 'Pull Request ID.', null);
         $this->addOption('url', 'u', InputOption::VALUE_OPTIONAL, 'Git clone URL.', null);
         $this->addOption('silent', null, InputOption::VALUE_NONE, 'No notification.');
         $this->addArgument('branch', InputArgument::OPTIONAL, 'Branch name.', null);
@@ -55,6 +56,7 @@ class InstallCommand extends Command
         $pullSHA = $input->getOption('pull-sha');
         $pullRepository = $input->getOption('pull-repository');
         $pullForce = $input->getOption('pull-force');
+        $pullId = $input->getOption('pull-id');
         $branch = $input->getArgument('branch');
 
         if ($pullSHA && !$pullBranch) {
@@ -156,6 +158,7 @@ class InstallCommand extends Command
         if ($pullBranch) {
             $systemTools->putEnvVar('CURRENT_BRANCH=' . $pullBranch);
             $systemTools->putEnvVar('CURRENT_BRANCH_SANITIZED=' . $systemTools->sanitizeBranchName($pullBranch));
+            $systemTools->putEnvVar('CURRENT_PULL_ID=' . $pullId);
         } else {
             $systemTools->putEnvVar('CURRENT_BRANCH=' . $branch);
             $systemTools->putEnvVar('CURRENT_BRANCH_SANITIZED=' . $systemTools->sanitizeBranchName($branch));
