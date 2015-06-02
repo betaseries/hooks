@@ -65,6 +65,7 @@ class InstallCommand extends Command
                 $url = $infos['url'];
                 $pullBranch = $infos['pull-branch'];
                 $pullRepository = $infos['pull-repository'];
+                $pullId = $infos['pull-id'];
                 $branch = $infos['branch'];
             } else {
                 throw new \Exception('No SHA record found in the directory.');
@@ -122,6 +123,7 @@ class InstallCommand extends Command
                     'url' => $url,
                     'pull-branch' => $pullBranch,
                     'pull-repository' => $pullRepository,
+                    'pull-id' => $pullId,
                     'branch' => $branch,
                 ];
                 $systemTools->recordSHA($baseDir, $pullSHA, $infos);
