@@ -67,7 +67,7 @@ class WorkerJobCommand extends Command
         }
 
         $redis = new \Redis();
-        $redis->pconnect($config['daemon']['host'], $config['daemon']['port']);
+        $redis->connect($config['daemon']['host'], $config['daemon']['port']);
         $redis->select($config['daemon']['db']);
 
         $timeout = time() + 60 * 60 * 1 + rand(0, 60 * 10);

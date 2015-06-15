@@ -62,7 +62,7 @@ class WorkerIncrementCommand extends Command
         }
 
         $redis = new \Redis();
-        $redis->pconnect($config['daemon']['host'], $config['daemon']['port']);
+        $redis->connect($config['daemon']['host'], $config['daemon']['port']);
         $redis->select($config['daemon']['db']);
 
         $version = $redis->incr('hooks.worker.version');
