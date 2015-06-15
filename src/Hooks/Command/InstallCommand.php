@@ -32,6 +32,7 @@ class InstallCommand extends Command
         $this->addOption('pull-sha', null, InputOption::VALUE_REQUIRED, 'Pull Request SHA for status.', null);
         $this->addOption('pull-repository', null, InputOption::VALUE_REQUIRED, 'Pull Request Repository for status.', null);
         $this->addOption('pull-force', null, InputOption::VALUE_NONE, 'Don\'t wait for all statuses to succeed.');
+        $this->addOption('pull-id', null, InputOption::VALUE_REQUIRED, 'Pull Request ID.', null);
         $this->addOption('url', 'u', InputOption::VALUE_OPTIONAL, 'Git clone URL.', null);
         $this->addOption('silent', null, InputOption::VALUE_NONE, 'No notification.');
         $this->addArgument('branch', InputArgument::OPTIONAL, 'Branch name.', null);
@@ -55,6 +56,7 @@ class InstallCommand extends Command
         $pullSHA = $input->getOption('pull-sha');
         $pullRepository = $input->getOption('pull-repository');
         $pullForce = $input->getOption('pull-force');
+        $pullId = $input->getOption('pull-id');
         $branch = $input->getArgument('branch');
 
         if ($pullSHA && !$pullBranch) {
@@ -63,6 +65,7 @@ class InstallCommand extends Command
                 $url = $infos['url'];
                 $pullBranch = $infos['pull-branch'];
                 $pullRepository = $infos['pull-repository'];
+                $pullId = $infos['pull-id'];
                 $branch = $infos['branch'];
             } else {
                 throw new \Exception('No SHA record found in the directory.');
@@ -120,6 +123,7 @@ class InstallCommand extends Command
                     'url' => $url,
                     'pull-branch' => $pullBranch,
                     'pull-repository' => $pullRepository,
+                    'pull-id' => $pullId,
                     'branch' => $branch,
                 ];
                 $systemTools->recordSHA($baseDir, $pullSHA, $infos);
@@ -146,11 +150,17 @@ class InstallCommand extends Command
             $cmds = $yaml['all'];
         }
 
+        // Overridings commands with pull commands
+        if ($pullBranch && isset($yaml['pulls']['commands']) && is_array($yaml['pulls']['commands'])) {
+            $cmds['commands'] = $yaml['pulls']['commands'];
+        }
+
         $systemTools->putEnvVar('TERM=VT100');
 
         if ($pullBranch) {
             $systemTools->putEnvVar('CURRENT_BRANCH=' . $pullBranch);
             $systemTools->putEnvVar('CURRENT_BRANCH_SANITIZED=' . $systemTools->sanitizeBranchName($pullBranch));
+            $systemTools->putEnvVar('CURRENT_PULL_ID=' . $pullId);
         } else {
             $systemTools->putEnvVar('CURRENT_BRANCH=' . $branch);
             $systemTools->putEnvVar('CURRENT_BRANCH_SANITIZED=' . $systemTools->sanitizeBranchName($branch));
@@ -205,6 +215,13 @@ class InstallCommand extends Command
             }
         }
 
+        if ($url && isset($cmds['release']['shared']) && is_array($cmds['release']['shared'])) {
+            foreach ($cmds['release']['shared'] as $item) {
+                $output->writeln('Linking shared item ' . $item);
+                $systemTools->executeCommand('rm -Rf ' . $repoBaseDir . '/releases/' . $newDir . $item . ' && ln -fs ' . $repoBaseDir . '/shared' . $item . ' ' . $repoBaseDir . '/releases/' . $newDir . $item);
+            }
+        }
+
         if (isset($cmds['commands']) && is_array($cmds['commands'])) {
             foreach ($cmds['commands'] as $cmd) {
                 $systemTools->executeCommand($cmd, $output, true);
@@ -212,12 +229,6 @@ class InstallCommand extends Command
         }
 
         if (is_array($cmds['release'])) {
-            if ($url && isset($cmds['release']['shared']) && is_array($cmds['release']['shared'])) {
-                foreach ($cmds['release']['shared'] as $item) {
-                    $output->writeln('Linking shared item ' . $item);
-                    $systemTools->executeCommand('rm -Rf ' . $repoBaseDir . '/releases/' . $newDir . $item . ' && ln -fs ' . $repoBaseDir . '/shared' . $item . ' ' . $repoBaseDir . '/releases/' . $newDir . $item);
-                }
-            }
             if (isset($cmds['release']['after']) && is_array($cmds['release']['after'])) {
                 foreach ($cmds['release']['after'] as $cmd) {
                     $systemTools->executeCommand($cmd);
@@ -238,7 +249,7 @@ class InstallCommand extends Command
                 }
                 $output->writeln('Linking release ' . $newDir);
                 $systemTools->executeCommand('ln -sf ' . $repoBaseDir . '/releases/' . $newDir . ' ' . $repoBaseDir . '/releases/current && mv ' . $repoBaseDir . '/releases/current ' . $repoBaseDir . '/');
-            } elseif (is_array($cmds['release']['standalone'])) {
+            } elseif (isset($cmds['release']['standalone']) && is_array($cmds['release']['standalone'])) {
                 foreach ($cmds['release']['standalone'] as $cmd) {
                     $systemTools->executeCommand($cmd);
                 }
