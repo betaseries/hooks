@@ -66,9 +66,13 @@ class WorkerJobCommand extends Command
             $config['daemon']['db'] = $redisDb;
         }
 
+        ini_set('default_socket_timeout', -1);
+
         $redis = new \Redis();
-        $redis->setOption(\Redis::OPT_READ_TIMEOUT, 31);
         $redis->connect($config['daemon']['host'], $config['daemon']['port']);
+        if (defined('\Redis::OPT_READ_TIMEOUT')) {
+            $redis->setOption(\Redis::OPT_READ_TIMEOUT, 31);
+        }
         $redis->select($config['daemon']['db']);
 
         $timeout = time() + 60 * 60 * 1 + rand(0, 60 * 10);
