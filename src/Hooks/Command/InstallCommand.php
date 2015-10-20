@@ -166,6 +166,8 @@ class InstallCommand extends Command
             $systemTools->putEnvVar('CURRENT_BRANCH_SANITIZED=' . $systemTools->sanitizeBranchName($branch));
         }
 
+        $repoBaseDir = null;
+
         if ($url && isset($cmds['release']) && is_array($cmds['release'])) {
             if ($pullBranch) {
                 if (!is_dir($baseDir . '/pulls')) {
@@ -196,6 +198,8 @@ class InstallCommand extends Command
         } elseif ($url) {
             throw new \Exception('You cannot set a Git clone URL without any release info.');
         }
+
+        $systemTools->putEnvVar('RELEASE_DIR=' . $repoBaseDir . '/current');
 
         if (isset($cmds['env']) && is_array($cmds['env'])) {
             foreach ($cmds['env'] as $env) {
