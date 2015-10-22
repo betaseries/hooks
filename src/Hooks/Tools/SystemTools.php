@@ -89,14 +89,18 @@ class SystemTools
             $env
         );
 
-        if (null !== $this->_outputFile) {
-            file_put_contents($this->_outputFile, $result . PHP_EOL . PHP_EOL . '~> ' . $calculatedEnv . PHP_EOL . PHP_EOL, FILE_APPEND);
-        }
-
         if (preg_match('/`(.+)`/', $calculatedEnv, $r)) {
             exec($r[1] . ' 2>&1', $output, $returnStatus);
             $output = trim(implode("\n", $output));
             $calculatedEnv = str_replace('`' . $r[1] . '`', $output, $calculatedEnv);
+
+            if (null !== $this->_outputFile) {
+                file_put_contents($this->_outputFile, 'Rendering command' . PHP_EOL . PHP_EOL . '~> ' . $r[1] . PHP_EOL . PHP_EOL . $output . PHP_EOL . PHP_EOL, FILE_APPEND);
+            }
+        }
+
+        if (null !== $this->_outputFile) {
+            file_put_contents($this->_outputFile, $result . PHP_EOL . PHP_EOL . '~> ' . $calculatedEnv . PHP_EOL . PHP_EOL, FILE_APPEND);
         }
 
         putenv($calculatedEnv);
