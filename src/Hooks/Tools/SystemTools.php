@@ -93,6 +93,12 @@ class SystemTools
             file_put_contents($this->_outputFile, $result . PHP_EOL . PHP_EOL . '~> ' . $calculatedEnv . PHP_EOL . PHP_EOL, FILE_APPEND);
         }
 
+        if (preg_match('/`(.+)`/', $calculatedEnv, $r)) {
+            exec($r[1] . ' 2>&1', $output, $returnStatus);
+            $output = trim(implode("\n", $output));
+            $calculatedEnv = str_replace('`' . $r[1] . '`', $output, $calculatedEnv);
+        }
+
         putenv($calculatedEnv);
     }
 
