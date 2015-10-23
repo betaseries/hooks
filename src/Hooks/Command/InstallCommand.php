@@ -12,6 +12,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\Console\Command\Command;
+use SensioLabs\AnsiConverter\AnsiToHtmlConverter;
 
 /**
  * Class InstallCommand
@@ -297,9 +298,13 @@ class InstallCommand extends Command
                 $transport = \Swift_MailTransport::newInstance();
                 $mailer = \Swift_Mailer::newInstance($transport);
 
+                $converter = new AnsiToHtmlConverter();
+                $html = $converter->convert(file_get_contents($outputFile));
+
                 $message = \Swift_Message::newInstance('WebHook ' . $cmds['release']['name'])
                     ->setFrom(array($config['email']['address'] => $config['email']['sender']))
                     ->setTo($yaml['emails'])
+                    ->setBody('<html><body><pre style="background-color: black; overflow: auto; padding: 10px 15px; font-family: monospace;">' . $html . '</pre></body></html>', 'text/html')
                     ->setBody($outputResult);
                 $result = $mailer->send($message);
             }
