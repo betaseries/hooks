@@ -305,7 +305,7 @@ class InstallCommand extends Command
                     ->setFrom(array($config['email']['address'] => $config['email']['sender']))
                     ->setTo($yaml['emails'])
                     ->setBody('<html><body><pre style="background-color: black; overflow: auto; padding: 10px 15px; font-family: monospace;">' . $html . '</pre></body></html>', 'text/html')
-                    ->setBody($outputResult);
+                    ->addPart($outputResult, 'text/plain');
                 $result = $mailer->send($message);
             }
 
