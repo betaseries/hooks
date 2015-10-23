@@ -23,7 +23,7 @@
     "guzzlehttp/guzzle": "~5.0",
     "swiftmailer/swiftmailer": "@stable",
     "symfony/yaml": "~2.0",
-    "sensiolabs/ansi-to-html": "dev-master"
+    "sensiolabs/ansi-to-html": "~1.0"
   },
   "require-dev": {
     "sensio/generator-bundle": "~2.3",
