@@ -2,8 +2,6 @@
 
 namespace Hooks\Tools;
 
-use GuzzleHttp\Client;
-
 /**
  * Class ServiceTools
  *
@@ -21,19 +19,24 @@ class ServiceTools
     public static function sendGitHubStatus($repository, $SHA, $state, $targetUrl=null, $description=null)
     {
         $config = ConfigTools::getLocalConfig(['github' => ['token' => null]]);
-        $client = new Client();
 
-        $response = $client->post('https://api.github.com/repos/' . $repository . '/statuses/' . $SHA, [
-            'body' => json_encode([
-                'state' => $state,
-                'target_url' => $targetUrl,
-                'description' => $description,
-                'context' => 'betacie/hooks',
-            ]),
-            'headers' => [
-                'Authorization' => 'token ' . $config['github']['token'],
-            ],
-        ]);
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, 'https://api.github.com/repos/' . $repository . '/statuses/' . $SHA);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'betacie/hooks');
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: token ' . $config['github']['token']]);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+            'state' => $state,
+            'target_url' => $targetUrl,
+            'description' => $description,
+            'context' => 'betacie/hooks',
+        ]));
+
+        $data = curl_exec($ch);
+        curl_close($ch);
     }
 
     /**
@@ -46,15 +49,19 @@ class ServiceTools
     public static function hasOnlyGreenGitHubStatuses($repository, $SHA, $statuses=[])
     {
         $config = ConfigTools::getLocalConfig(['github' => ['token' => null]]);
-        $client = new Client();
 
-        $response = $client->get('https://api.github.com/repos/' . $repository . '/commits/' . $SHA . '/status', [
-            'headers' => [
-                'Authorization' => 'token ' . $config['github']['token'],
-            ],
-        ]);
+        $ch = curl_init();
 
-        $json = $response->json();
+        curl_setopt($ch, CURLOPT_URL, 'https://api.github.com/repos/' . $repository . '/commits/' . $SHA . '/status');
+        curl_setopt($ch, CURLOPT_USERAGENT, 'betacie/hooks');
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: token ' . $config['github']['token']]);
+
+        $data = curl_exec($ch);
+        curl_close($ch);
+
+        $json = json_decode($data, true);
 
         if (count($statuses) == 0) {
             foreach ($json['statuses'] as $status) {

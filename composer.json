@@ -19,8 +19,8 @@
   },
   "require": {
     "php": ">=5.4",
+    "lib-curl": "*",
     "symfony/console": "~2.1",
-    "guzzlehttp/guzzle": "~5.0",
     "swiftmailer/swiftmailer": "@stable",
     "symfony/yaml": "~2.0",
     "sensiolabs/ansi-to-html": "~1.0"

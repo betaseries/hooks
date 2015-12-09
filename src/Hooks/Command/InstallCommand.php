@@ -2,7 +2,6 @@
 
 namespace Hooks\Command;
 
-use GuzzleHttp\Client;
 use Hooks\Tools\ConfigTools;
 use Hooks\Tools\ServiceTools;
 use Hooks\Tools\SystemTools;
@@ -338,26 +337,33 @@ class InstallCommand extends Command
                         $title = 'Release from ' . $branch;
                     }
 
-                    $client = new Client();
-                    $response = $client->post($yaml['slack']['url'], [
-                            'body' => [
-                                'payload' => json_encode([
-                                        'channel' => $yaml['slack']['channel'],
-                                        'pretext' => $launched,
-                                        'fallback' => $launched,
-                                        'color' => '#B8CB82',
-                                        'fields' => [
-                                            [
-                                                'title' => $title,
-                                                'value' => 'Last commit: ' . $lastCommit,
-                                                'short' => false,
-                                            ],
-                                        ]
-                                    ]
-                                )
+                    $ch = curl_init();
+
+                    curl_setopt($ch, CURLOPT_URL, $yaml['slack']['url']);
+                    curl_setopt($ch, CURLOPT_USERAGENT, 'betacie/hooks');
+                    curl_setopt($ch, CURLOPT_HEADER, 0);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: token ' . $config['github']['token']]);
+                    curl_setopt($ch, CURLOPT_POST, 1);
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, [
+                        'payload' => json_encode([
+                                'channel' => $yaml['slack']['channel'],
+                                'pretext' => $launched,
+                                'fallback' => $launched,
+                                'color' => '#B8CB82',
+                                'fields' => [
+                                    [
+                                        'title' => $title,
+                                        'value' => 'Last commit: ' . $lastCommit,
+                                        'short' => false,
+                                    ],
+                                ]
                             ]
-                        ]
-                    );
+                        )
+                    ]);
+
+                    $data = curl_exec($ch);
+                    curl_close($ch);
                 }
             }
         }
