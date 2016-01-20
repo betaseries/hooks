@@ -293,7 +293,7 @@ class InstallCommand extends Command
                 ServiceTools::sendGitHubStatus($pullRepository, $pullSHA, 'success', $liveUrl, 'Staging environment has been updated.');
             }
 
-            if (is_array($yaml['emails'])) {
+            if (isset($yaml['emails']) && is_array($yaml['emails'])) {
                 $transport = \Swift_MailTransport::newInstance();
                 $mailer = \Swift_Mailer::newInstance($transport);
 
@@ -308,7 +308,7 @@ class InstallCommand extends Command
                 $result = $mailer->send($message);
             }
 
-            if (is_array($yaml['slack']) && !empty($yaml['slack']['url']) && !empty($yaml['slack']['channel'])) {
+            if (isset($yaml['slack']) && is_array($yaml['slack']) && !empty($yaml['slack']['url']) && !empty($yaml['slack']['channel'])) {
                 $config = ConfigTools::getLocalConfig([
                     'messages' => ['New release']
                 ]);
