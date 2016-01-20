@@ -1,5 +1,5 @@
 {
-  "name": "betacie/hooks",
+  "name": "gonetcats/hooks",
   "description": "Command-line tool to interact with hooks.yml files.",
   "type": "library",
   "keywords": [
@@ -15,7 +15,7 @@
     }
   ],
   "support": {
-    "issues": "https://github.com/betacie/hooks/issues"
+    "issues": "https://github.com/gonetcats/hooks/issues"
   },
   "require": {
     "php": ">=5.4",
