@@ -6,21 +6,21 @@ use Symfony\Component\Console\Application;
 
 foreach (array(__DIR__ . '/../../autoload.php', __DIR__ . '/vendor/autoload.php') as $file) {
     if (file_exists($file)) {
-        define('BETACIE_HOOKS_COMPOSER_INSTALL', $file);
+        define('NETCATS_HOOKS_COMPOSER_INSTALL', $file);
         break;
     }
 }
 
-if (!defined('BETACIE_HOOKS_COMPOSER_INSTALL')) {
+if (!defined('NETCATS_HOOKS_COMPOSER_INSTALL')) {
     echo 'You need to set up the project dependencies using the following commands:' . PHP_EOL .
         'wget http://getcomposer.org/composer.phar' . PHP_EOL .
         'php composer.phar install' . PHP_EOL;
     die(1);
 }
 
-require BETACIE_HOOKS_COMPOSER_INSTALL;
+require NETCATS_HOOKS_COMPOSER_INSTALL;
 
-$console = new Application();
+$console = new Application('Netcats Hooks', '1.4');
 
 $console->add(new Command\InstallCommand());
 $console->add(new Command\TriggerCommand());

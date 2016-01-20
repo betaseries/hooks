@@ -29,6 +29,7 @@ class WorkerJobCommand extends Command
         $this->addOption('host', null, InputOption::VALUE_OPTIONAL, 'Redis host.', null);
         $this->addOption('port', 'p', InputOption::VALUE_OPTIONAL, 'Redis port.', null);
         $this->addOption('db', 'd', InputOption::VALUE_OPTIONAL, 'Redis database.', null);
+        $this->addOption('queue', null, InputOption::VALUE_OPTIONAL, 'Redis queue.', null);
     }
 
     /**
@@ -43,6 +44,7 @@ class WorkerJobCommand extends Command
         $redisHost = $input->getOption('host');
         $redisPort = $input->getOption('port');
         $redisDb = $input->getOption('db');
+        $redisQueue = $input->getOption('queue');
 
         try {
             $config = Yaml::parse(file_get_contents($_SERVER['HOME'] . '/.hooks.yml'));
@@ -52,6 +54,7 @@ class WorkerJobCommand extends Command
                     'host' => '127.0.0.1',
                     'port' => 6379,
                     'db' => 0,
+                    'queue' => 'jobs',
                 ]
             ];
         }
@@ -64,6 +67,9 @@ class WorkerJobCommand extends Command
         }
         if ($redisDb) {
             $config['daemon']['db'] = $redisDb;
+        }
+        if ($redisQueue) {
+            $config['daemon']['queue'] = $redisQueue;
         }
 
         ini_set('default_socket_timeout', -1);
@@ -79,7 +85,7 @@ class WorkerJobCommand extends Command
         $version = $redis->get('hooks.worker.version');
 
         while (time() < $timeout) {
-            $job = $redis->blpop(['hooks.worker.jobs'], 10);
+            $job = $redis->blpop(['hooks.worker.' . $config['daemon']['queue']], 10);
 
             if ($job) {
                 $details = json_decode($job[1], true);
