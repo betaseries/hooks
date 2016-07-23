@@ -275,6 +275,10 @@ class InstallCommand extends Command
                 'email' => [
                     'sender' => null,
                     'address' => null,
+                    'host' => null,
+                    'port' => 25,
+                    'user' => null,
+                    'password' => null,
                 ]
             ]);
 
@@ -294,7 +298,18 @@ class InstallCommand extends Command
             }
 
             if (isset($yaml['emails']) && is_array($yaml['emails'])) {
-                $transport = \Swift_MailTransport::newInstance();
+                if (!empty($yaml['emails']['host'])) {
+                    $transport = \Swift_SmtpTransport::newInstance($yaml['emails']['host'], $yaml['emails']['port']);
+                    if (!empty($yaml['emails']['user'])) {
+                        $transport->setUsername($yaml['emails']['user']);
+                    }
+                    if (!empty($yaml['emails']['password'])) {
+                        $transport->setPassword($yaml['emails']['password']);
+                    }
+                } else {
+                    $transport = \Swift_MailTransport::newInstance();
+                }
+
                 $mailer = \Swift_Mailer::newInstance($transport);
 
                 $converter = new AnsiToHtmlConverter();
