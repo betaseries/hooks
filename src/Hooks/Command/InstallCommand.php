@@ -58,8 +58,8 @@ class InstallCommand extends Command
         $pullRepository = $input->getOption('pull-repository');
         $pullForce = $input->getOption('pull-force');
         $pullId = $input->getOption('pull-id');
-        $branch = $input->getOption('branch');
-        $update = $input->getArgument('update');
+        $update = $input->getOption('update');
+        $branch = $input->getArgument('branch');
 
         if ($pullSHA && !$pullBranch) {
             // Check if we recorded this SHA in the directory
