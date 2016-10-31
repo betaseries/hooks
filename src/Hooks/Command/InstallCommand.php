@@ -34,6 +34,7 @@ class InstallCommand extends Command
         $this->addOption('pull-force', null, InputOption::VALUE_NONE, 'Don\'t wait for all statuses to succeed.');
         $this->addOption('pull-id', null, InputOption::VALUE_REQUIRED, 'Pull Request ID.', null);
         $this->addOption('url', 'u', InputOption::VALUE_OPTIONAL, 'Git clone URL.', null);
+        $this->addOption('update', null, InputOption::VALUE_NONE, 'Run a git pull on directory.');
         $this->addOption('silent', null, InputOption::VALUE_NONE, 'No notification.');
         $this->addArgument('branch', InputArgument::OPTIONAL, 'Branch name.', null);
     }
@@ -58,6 +59,7 @@ class InstallCommand extends Command
         $pullForce = $input->getOption('pull-force');
         $pullId = $input->getOption('pull-id');
         $branch = $input->getArgument('branch');
+        $update = $input->getArgument('update');
 
         if ($pullSHA && !$pullBranch) {
             // Check if we recorded this SHA in the directory
@@ -100,6 +102,8 @@ class InstallCommand extends Command
             } else {
                 $systemTools->executeCommand('git checkout ' . $branch);
             }
+        } elseif ($update) {
+            $systemTools->executeCommand('git pull origin');
         }
 
         $yaml = ConfigTools::getRepositoryConfig($dir);
