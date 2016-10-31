@@ -58,7 +58,7 @@ class InstallCommand extends Command
         $pullRepository = $input->getOption('pull-repository');
         $pullForce = $input->getOption('pull-force');
         $pullId = $input->getOption('pull-id');
-        $branch = $input->getArgument('branch');
+        $branch = $input->getOption('branch');
         $update = $input->getArgument('update');
 
         if ($pullSHA && !$pullBranch) {
