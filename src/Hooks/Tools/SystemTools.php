@@ -14,6 +14,7 @@ class SystemTools
     /** @var OutputInterface */
     private $_output;
     private $_outputFile = null;
+    private $_returnStatuses = [];
 
     /**
      * @param OutputInterface $output
@@ -61,6 +62,8 @@ class SystemTools
         } else {
             system($cmd . ' 2>&1', $returnStatus);
         }
+
+        $this->_returnStatuses[] = $returnStatus;
 
         if (0 !== $returnStatus) {
             $this->_output->writeln(PHP_EOL . 'Returned code: ' . $returnStatus);
@@ -202,5 +205,21 @@ class SystemTools
     public function sanitizeBranchName($branch)
     {
         return str_replace('/', '-', $branch);
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasErrorReturned()
+    {
+        $hasErrors = false;
+
+        foreach ($this->_returnStatuses as $returnStatus) {
+            if ($returnStatus != 0) {
+                $hasErrors = true;
+            }
+        }
+
+        return $hasErrors;
     }
 }

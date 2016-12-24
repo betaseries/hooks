@@ -219,7 +219,7 @@ class InstallCommand extends Command
 
         if ($pullBranch && isset($yaml['pulls']) && is_array($yaml['pulls']) && isset($yaml['pulls']['open']) && is_array($yaml['pulls']['open'])) {
             foreach ($yaml['pulls']['open'] as $cmd) {
-                $systemTools->executeCommand($cmd, $output, true);
+                $systemTools->executeCommand($cmd, true);
             }
         }
 
@@ -232,7 +232,7 @@ class InstallCommand extends Command
 
         if (isset($cmds['commands']) && is_array($cmds['commands'])) {
             foreach ($cmds['commands'] as $cmd) {
-                $systemTools->executeCommand($cmd, $output, true);
+                $systemTools->executeCommand($cmd, true);
             }
         }
 
@@ -270,7 +270,7 @@ class InstallCommand extends Command
 
         if (is_array($config) && isset($config['after']) && is_array($config['after'])) {
             foreach ($config['after'] as $cmd) {
-                $systemTools->executeCommand($cmd, $output, true);
+                $systemTools->executeCommand($cmd, true);
             }
         }
 
@@ -319,7 +319,7 @@ class InstallCommand extends Command
                 $converter = new AnsiToHtmlConverter();
                 $html = $converter->convert(file_get_contents($outputFile));
 
-                $message = \Swift_Message::newInstance('WebHook ' . $cmds['release']['name'])
+                $message = \Swift_Message::newInstance(($systemTools->hasErrorReturned() ? '🔴 ' : null) . 'WebHook ' . $cmds['release']['name'])
                     ->setFrom(array($config['email']['address'] => $config['email']['sender']))
                     ->setTo($yaml['emails'])
                     ->setBody('<html><body><pre style="background-color: black; overflow: auto; padding: 10px 15px; font-family: monospace;">' . $html . '</pre></body></html>', 'text/html')
