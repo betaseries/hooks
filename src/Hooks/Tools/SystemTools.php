@@ -66,6 +66,10 @@ class SystemTools
         $this->_returnStatuses[] = $returnStatus;
 
         if (0 !== $returnStatus) {
+            if (null !== $this->_outputFile) {
+                file_put_contents($this->_outputFile, 'Returned code: ' . $returnStatus . PHP_EOL . PHP_EOL, FILE_APPEND);
+            }
+
             $this->_output->writeln(PHP_EOL . 'Returned code: ' . $returnStatus);
         }
     }
