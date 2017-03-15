@@ -159,6 +159,11 @@ class InstallCommand extends Command
             $cmds['commands'] = $yaml['pulls']['commands'];
         }
 
+        // Overridings release with pull release
+        if ($pullBranch && isset($yaml['pulls']['release']) && is_array($yaml['pulls']['release'])) {
+            $cmds['release'] = array_merge($cmds['release'], $yaml['pulls']['release']);
+        }
+
         $systemTools->putEnvVar('TERM=VT100');
 
         if ($pullBranch) {
