@@ -242,11 +242,6 @@ class InstallCommand extends Command
         }
 
         if (is_array($cmds['release'])) {
-            if (isset($cmds['release']['after']) && is_array($cmds['release']['after'])) {
-                foreach ($cmds['release']['after'] as $cmd) {
-                    $systemTools->executeCommand($cmd);
-                }
-            }
             if ($url) {
                 if (isset($cmds['release']['keep']) && is_numeric($cmds['release']['keep']) && $cmds['release']['keep'] > 0) {
                     $dirs = glob($repoBaseDir . '/releases/*', GLOB_ONLYDIR);
@@ -264,6 +259,11 @@ class InstallCommand extends Command
                 $systemTools->executeCommand('ln -sf ' . $repoBaseDir . '/releases/' . $newDir . ' ' . $repoBaseDir . '/releases/current && mv ' . $repoBaseDir . '/releases/current ' . $repoBaseDir . '/');
             } elseif (isset($cmds['release']['standalone']) && is_array($cmds['release']['standalone'])) {
                 foreach ($cmds['release']['standalone'] as $cmd) {
+                    $systemTools->executeCommand($cmd);
+                }
+            }
+            if (isset($cmds['release']['after']) && is_array($cmds['release']['after'])) {
+                foreach ($cmds['release']['after'] as $cmd) {
                     $systemTools->executeCommand($cmd);
                 }
             }
