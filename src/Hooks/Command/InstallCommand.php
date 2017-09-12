@@ -332,7 +332,10 @@ class InstallCommand extends Command
                 $result = $mailer->send($message);
             }
 
-            if (isset($yaml['slack']) && is_array($yaml['slack']) && !empty($yaml['slack']['url']) && !empty($yaml['slack']['channel'])) {
+            if (
+                (isset($yaml['slack']) && is_array($yaml['slack']) && !empty($yaml['slack']['url']) && !empty($yaml['slack']['channel'])) ||
+                (isset($cmds['release']['slack']) && is_array($cmds['release']['slack']) && !empty($cmds['release']['slack']['url']) && !empty($cmds['release']['slack']['channel']))
+            ) {
                 $config = ConfigTools::getLocalConfig([
                     'messages' => ['New release']
                 ]);
@@ -361,9 +364,12 @@ class InstallCommand extends Command
                         $title = 'Release from ' . $branch;
                     }
 
+                    $slackUrl = isset($cmds['release']['slack']) ? $cmds['release']['slack']['url'] : $yaml['slack']['url'];
+                    $slackChannel = isset($cmds['release']['slack']) ? $cmds['release']['slack']['channel'] : $yaml['slack']['channel'];
+
                     $ch = curl_init();
 
-                    curl_setopt($ch, CURLOPT_URL, $yaml['slack']['url']);
+                    curl_setopt($ch, CURLOPT_URL, $slackUrl);
                     curl_setopt($ch, CURLOPT_USERAGENT, 'gonetcats/hooks');
                     curl_setopt($ch, CURLOPT_HEADER, 0);
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -371,7 +377,7 @@ class InstallCommand extends Command
                     curl_setopt($ch, CURLOPT_POST, 1);
                     curl_setopt($ch, CURLOPT_POSTFIELDS, [
                         'payload' => json_encode([
-                                'channel' => $yaml['slack']['channel'],
+                                'channel' => $slackChannel,
                                 'pretext' => $launched,
                                 'fallback' => $launched,
                                 'color' => '#B8CB82',
