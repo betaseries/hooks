@@ -61,6 +61,9 @@ class InstallCommand extends Command
         $update = $input->getOption('update');
         $branch = $input->getArgument('branch');
 
+        ServiceTools::$repository = $pullRepository;
+        ServiceTools::$SHA = $pullSHA;
+
         if ($pullSHA && !$pullBranch) {
             // Check if we recorded this SHA in the directory
             if ($infos = $systemTools->getRecordedSHA($dir, $pullSHA)) {
@@ -118,9 +121,9 @@ class InstallCommand extends Command
                 $output->writeln('Required green statuses: ' . implode(', ', $statuses) . '.');
             }
 
-            if (!ServiceTools::hasOnlyGreenGitHubStatuses($pullRepository, $pullSHA, $statuses)) {
+            if (!ServiceTools::hasOnlyGreenGitHubStatuses($statuses)) {
                 $output->writeln('All required statuses are not green, waiting.');
-                ServiceTools::sendGitHubStatus($pullRepository, $pullSHA, 'pending', null, 'Waiting for all statuses to succeed.');
+                ServiceTools::sendGitHubStatus('pending', null, 'Waiting for all statuses to succeed.');
 
                 $infos = [
                     'dir' => $baseDir,
@@ -144,9 +147,7 @@ class InstallCommand extends Command
             }
         }
 
-        if ($pullRepository && $pullSHA) {
-            ServiceTools::sendGitHubStatus($pullRepository, $pullSHA, 'pending', null, 'Shipping…');
-        }
+        ServiceTools::sendGitHubStatus('pending', null, 'Shipping…');
 
         if (isset($yaml[$branch]) && is_array($yaml[$branch])) {
             $cmds = $yaml[$branch];
@@ -302,9 +303,7 @@ class InstallCommand extends Command
                 $liveUrl = $cmds['release']['url'];
             }
 
-            if ($pullRepository && $pullSHA) {
-                ServiceTools::sendGitHubStatus($pullRepository, $pullSHA, 'success', $liveUrl, 'Staging environment has been updated.');
-            }
+            ServiceTools::sendGitHubStatus('success', $liveUrl, 'Staging environment has been updated.');
 
             if (isset($yaml['emails']) && is_array($yaml['emails'])) {
                 if (!empty($yaml['emails']['host'])) {

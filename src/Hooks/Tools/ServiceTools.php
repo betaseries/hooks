@@ -9,20 +9,27 @@ namespace Hooks\Tools;
  */
 class ServiceTools
 {
+    static $repository = null;
+    static $SHA = null;
+
     /**
-     * @param string $repository  Repository
-     * @param string $SHA         SHA
      * @param string $state       State (pending, success, error, or failure).
      * @param string $targetUrl   Target URL
      * @param string $description Description
+     *
+     * @return mixed
      */
-    public static function sendGitHubStatus($repository, $SHA, $state, $targetUrl=null, $description=null)
+    public static function sendGitHubStatus($state, $targetUrl=null, $description=null)
     {
+        if (!self::$repository || !self::$SHA) {
+            return false;
+        }
+
         $config = ConfigTools::getLocalConfig(['github' => ['token' => null]]);
 
         $ch = curl_init();
 
-        curl_setopt($ch, CURLOPT_URL, 'https://api.github.com/repos/' . $repository . '/statuses/' . $SHA);
+        curl_setopt($ch, CURLOPT_URL, 'https://api.github.com/repos/' . self::$repository . '/statuses/' . self::$SHA);
         curl_setopt($ch, CURLOPT_USERAGENT, 'gonetcats/hooks');
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -37,17 +44,21 @@ class ServiceTools
 
         $data = curl_exec($ch);
         curl_close($ch);
+
+        return $data;
     }
 
     /**
-     * @param string $repository Repository
-     * @param string $SHA        SHA
-     * @param array  $statuses   Statuses
+     * @param array $statuses Statuses
      *
      * @return bool
      */
-    public static function hasOnlyGreenGitHubStatuses($repository, $SHA, $statuses=[])
+    public static function hasOnlyGreenGitHubStatuses($statuses=[])
     {
+        if (!self::$repository || !self::$SHA) {
+            return false;
+        }
+
         $config = ConfigTools::getLocalConfig(['github' => ['token' => null]]);
 
         $ch = curl_init();

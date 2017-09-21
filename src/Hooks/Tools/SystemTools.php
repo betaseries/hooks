@@ -53,6 +53,7 @@ class SystemTools
 
         if ($displayCommand) {
             $this->_output->writeln($result);
+            ServiceTools::sendGitHubStatus('pending', null, $result);
         }
 
         if (null !== $this->_outputFile) {
