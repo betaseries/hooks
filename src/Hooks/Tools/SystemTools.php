@@ -173,6 +173,47 @@ class SystemTools
 
     /**
      * @param string $dir
+     *
+     * @return int
+     */
+    public function checkLockfile($dir)
+    {
+        $lockfile = $dir.'/.lock';
+        $timeout = time()-1800;
+
+        if (file_exists($lockfile)) {
+            if (filemtime($lockfile) >= $timeout) {
+                ServiceTools::sendGitHubStatus('pending', null, 'Lock file found, waiting…');
+                sleep(5);
+
+                return $this->checkLockfile($dir);
+            }
+            unlink($lockfile);
+        }
+
+        file_put_contents($lockfile, time());
+
+        return 0;
+    }
+
+    /**
+     * @param string $dir
+     *
+     * @return int
+     */
+    public function removeLockfile($dir)
+    {
+        $lockfile = $dir.'/.lock';
+
+        if (file_exists($lockfile)) {
+            unlink($lockfile);
+        }
+
+        return 0;
+    }
+
+    /**
+     * @param string $dir
      */
     public function cleanRecordedSHAs($dir)
     {

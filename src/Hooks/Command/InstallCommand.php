@@ -209,6 +209,8 @@ class InstallCommand extends Command
             throw new \Exception('You cannot set a Git clone URL without any release info.');
         }
 
+        $systemTools->checkLockfile($repoBaseDir);
+
         $systemTools->putEnvVar('RELEASE_DIR=' . $repoBaseDir . '/current');
 
         if (isset($cmds['env']) && is_array($cmds['env'])) {
@@ -304,6 +306,7 @@ class InstallCommand extends Command
             }
 
             ServiceTools::sendGitHubStatus('success', $liveUrl, 'Staging environment has been updated.');
+            $systemTools->removeLockfile($repoBaseDir);
 
             if (isset($yaml['emails']) && is_array($yaml['emails'])) {
                 if (!empty($yaml['emails']['host'])) {
