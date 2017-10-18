@@ -118,6 +118,8 @@ class WorkerJobCommand extends Command
                 } catch (\Exception $e) {
                     $output->writeln('<error>[' . date('c') . '] Error: ' . $e->getMessage() . '</error>');
                 }
+
+                return null;
             }
 
             if ($redis->get('hooks.worker.version') != $version) {
