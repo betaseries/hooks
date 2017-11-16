@@ -69,7 +69,7 @@ class InstallCommand extends Command
             if ($infos = $systemTools->getRecordedSHA($dir, $pullSHA)) {
                 $url = $infos['url'];
                 $pullBranch = $infos['pull-branch'];
-                $pullRepository = $infos['pull-repository'];
+                ServiceTools::$repository = $pullRepository = $infos['pull-repository'];
                 $pullId = $infos['pull-id'];
                 $branch = $infos['branch'];
             } else {
