@@ -63,11 +63,11 @@ class ServiceTools
 
         $ch = curl_init();
 
-        curl_setopt($ch, CURLOPT_URL, 'https://api.github.com/repos/' . $repository . '/commits/' . $SHA . '/status');
+        curl_setopt($ch, CURLOPT_URL, 'https://api.github.com/repos/'.self::$repository.'/commits/'.self::$SHA.'/status');
         curl_setopt($ch, CURLOPT_USERAGENT, 'gonetcats/hooks');
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: token ' . $config['github']['token']]);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: token '.$config['github']['token']]);
 
         $data = curl_exec($ch);
         curl_close($ch);
