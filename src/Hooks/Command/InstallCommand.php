@@ -318,7 +318,7 @@ class InstallCommand extends Command
                         $transport->setPassword($yaml['emails']['password']);
                     }
                 } else {
-                    $transport = \Swift_MailTransport::newInstance();
+                    $transport = \Swift_SmtpTransport::newInstance();
                 }
 
                 $mailer = \Swift_Mailer::newInstance($transport);
