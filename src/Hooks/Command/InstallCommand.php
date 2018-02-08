@@ -310,7 +310,7 @@ class InstallCommand extends Command
 
             if (isset($yaml['emails']) && is_array($yaml['emails'])) {
                 if (!empty($yaml['emails']['host'])) {
-                    $transport = \Swift_SmtpTransport::newInstance($yaml['emails']['host'], $yaml['emails']['port']);
+                    $transport = new \Swift_SmtpTransport($yaml['emails']['host'], $yaml['emails']['port']);
                     if (!empty($yaml['emails']['user'])) {
                         $transport->setUsername($yaml['emails']['user']);
                     }
@@ -318,15 +318,17 @@ class InstallCommand extends Command
                         $transport->setPassword($yaml['emails']['password']);
                     }
                 } else {
-                    $transport = \Swift_SmtpTransport::newInstance();
+                    $transport = new \Swift_SmtpTransport();
                 }
 
-                $mailer = \Swift_Mailer::newInstance($transport);
+                $mailer = new \Swift_Mailer($transport);
 
                 $converter = new AnsiToHtmlConverter();
                 $html = $converter->convert(file_get_contents($outputFile));
 
-                $message = \Swift_Message::newInstance(($systemTools->hasErrorReturned() ? '🔴 ' : null) . 'WebHook ' . $cmds['release']['name'])
+                $message = new \Swift_Message(($systemTools->hasErrorReturned() ? '🔴 ' : null) . 'WebHook ' . $cmds['release']['name']);
+
+		$message
                     ->setFrom(array($config['email']['address'] => $config['email']['sender']))
                     ->setTo($yaml['emails'])
                     ->setBody('<html><body><pre style="background-color: black; overflow: auto; padding: 10px 15px; font-family: monospace;">' . $html . '</pre></body></html>', 'text/html')
