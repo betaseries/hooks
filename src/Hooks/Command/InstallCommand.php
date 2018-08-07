@@ -333,6 +333,8 @@ class InstallCommand extends Command
                     ->setBody('<html><body><pre style="background-color: black; overflow: auto; padding: 10px 15px; font-family: monospace;">' . $html . '</pre></body></html>', 'text/html')
                     ->addPart($outputResult, 'text/plain');
                 $result = $mailer->send($message);
+
+                $output->writeln('Email sent: '.$result);
             }
 
             if (
@@ -396,6 +398,8 @@ class InstallCommand extends Command
 
                     $data = curl_exec($ch);
                     curl_close($ch);
+
+                    $output->writeln('Slack message sent: '.$data);
                 }
             }
         }
