@@ -88,6 +88,7 @@ class InstallCommand extends Command
 
         $newDir = date('YmdHis');
         $baseDir = $dir;
+        $outputFile = null;
 
         if (!$silent) {
             $outputFile = $dir . '/logs/install-' . $newDir . '.log';
@@ -309,13 +310,13 @@ class InstallCommand extends Command
             $systemTools->removeLockfile($repoBaseDir);
 
             if (isset($yaml['emails']) && is_array($yaml['emails'])) {
-                if (!empty($yaml['emails']['host'])) {
-                    $transport = \Swift_SmtpTransport::newInstance($yaml['emails']['host'], $yaml['emails']['port']);
-                    if (!empty($yaml['emails']['user'])) {
-                        $transport->setUsername($yaml['emails']['user']);
+                if (!empty($config['email']['host'])) {
+                    $transport = \Swift_SmtpTransport::newInstance($config['email']['host'], $config['email']['port']);
+                    if (!empty($config['email']['user'])) {
+                        $transport->setUsername($config['email']['user']);
                     }
-                    if (!empty($yaml['emails']['password'])) {
-                        $transport->setPassword($yaml['emails']['password']);
+                    if (!empty($config['email']['password'])) {
+                        $transport->setPassword($config['email']['password']);
                     }
                 } else {
                     $transport = \Swift_SmtpTransport::newInstance();
@@ -375,7 +376,6 @@ class InstallCommand extends Command
                     curl_setopt($ch, CURLOPT_USERAGENT, 'gonetcats/hooks');
                     curl_setopt($ch, CURLOPT_HEADER, 0);
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: token ' . $config['github']['token']]);
                     curl_setopt($ch, CURLOPT_POST, 1);
                     curl_setopt($ch, CURLOPT_POSTFIELDS, [
                         'payload' => json_encode([
