@@ -382,14 +382,16 @@ class InstallCommand extends Command
                     curl_setopt($ch, CURLOPT_POST, 1);
                     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
                         'attachments' => [
-                            'title' => $title,
-                            'text' => $lastCommit,
-                            'fallback' => 'Go to URL: '.$liveUrl,
-                            'actions' => [
-                                [
-                                    'type' => 'button',
-                                    'text' => 'Go to URL',
-                                    'url' => $liveUrl,
+                            [
+                                'title' => $title,
+                                'text' => $lastCommit,
+                                'fallback' => 'Go to URL: '.$liveUrl,
+                                'actions' => [
+                                    [
+                                        'type' => 'button',
+                                        'text' => 'Go to URL',
+                                        'url' => $liveUrl,
+                                    ]
                                 ]
                             ]
                         ]
