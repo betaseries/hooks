@@ -376,25 +376,24 @@ class InstallCommand extends Command
 
                     curl_setopt($ch, CURLOPT_URL, $slackUrl);
                     curl_setopt($ch, CURLOPT_USERAGENT, 'gonetcats/hooks');
+                    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
                     curl_setopt($ch, CURLOPT_HEADER, 0);
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                     curl_setopt($ch, CURLOPT_POST, 1);
-                    curl_setopt($ch, CURLOPT_POSTFIELDS, [
-                        'payload' => json_encode([
-                                'channel' => $slackChannel,
-                                'pretext' => $launched,
-                                'fallback' => $launched,
-                                'color' => '#B8CB82',
-                                'fields' => [
-                                    [
-                                        'title' => $title,
-                                        'value' => 'Last commit: ' . $lastCommit,
-                                        'short' => false,
-                                    ],
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+                        'text' => $title,
+                        'attachments' => [
+                            'title' => $lastCommit,
+                            'fallback' => 'Go to URL: '.$liveUrl,
+                            'actions' => [
+                                [
+                                    'type' => 'button',
+                                    'text' => 'Go to URL',
+                                    'url' => $liveUrl,
                                 ]
                             ]
-                        )
-                    ]);
+                        ]
+                    ]));
 
                     $data = curl_exec($ch);
                     curl_close($ch);
