@@ -363,8 +363,21 @@ class InstallCommand extends Command
                 }
 
                 if (!empty($liveUrl) || !empty($name)) {
+                    $actions = [
+                        [
+                            'type' => 'button',
+                            'text' => 'Go to URL',
+                            'url' => $liveUrl,
+                        ]
+                    ];
+
                     if ($pullBranch) {
                         $title = 'Pull Request from ' . $pullBranch;
+                        $actions[] = [
+                            'type' => 'button',
+                            'text' => 'Go to PR',
+                            'url' => 'https://github.com/'.substr($url, strpos($url, ':')+1).'/pull/'.$pullId,
+                        ];
                     } else {
                         $title = 'Release from ' . $branch;
                     }
@@ -386,13 +399,7 @@ class InstallCommand extends Command
                                 'title' => $title,
                                 'text' => $lastCommit,
                                 'fallback' => 'Go to URL: '.$liveUrl,
-                                'actions' => [
-                                    [
-                                        'type' => 'button',
-                                        'text' => 'Go to URL',
-                                        'url' => $liveUrl,
-                                    ]
-                                ]
+                                'actions' => $actions,
                             ]
                         ]
                     ]));
