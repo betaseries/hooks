@@ -376,7 +376,7 @@ class InstallCommand extends Command
                         $actions[] = [
                             'type' => 'button',
                             'text' => 'Go to PR',
-                            'url' => 'https://github.com/'.substr($url, strpos($url, ':')+1).'/pull/'.$pullId,
+                            'url' => 'https://github.com/'.str_replace('.git', '', substr($url, strpos($url, ':')+1)).'/pull/'.$pullId,
                         ];
                     } else {
                         $title = 'Release from ' . $branch;
