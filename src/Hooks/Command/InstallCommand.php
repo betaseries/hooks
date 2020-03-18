@@ -403,8 +403,7 @@ class InstallCommand extends Command
         if (is_array($cmds['release']) && $url &&
             ((isset($cmds['release']['keep']) && is_numeric($cmds['release']['keep']) && $cmds['release']['keep'] > 0))) {
 
-            $emptyDir = $repoBaseDir.'/releases/empty/';
-            $dirs     = glob($repoBaseDir.'/releases/*', GLOB_ONLYDIR);
+            $dirs = glob($repoBaseDir.'/releases/*', GLOB_ONLYDIR);
             rsort($dirs);
             $i = 0;
 
@@ -412,10 +411,6 @@ class InstallCommand extends Command
                 $i++;
                 if ($i > $cmds['release']['keep']) {
                     $output->writeln('Removing extra release '.basename($dir));
-
-                    mkdir($emptyDir);
-                    $systemTools->executeCommand('rsync -a --delete '.$emptyDir.' '.$dir.'/');
-                    $systemTools->executeCommand('rm -Rf '.$emptyDir);
                     $systemTools->executeCommand('rm -Rf '.$dir);
                 }
             }
