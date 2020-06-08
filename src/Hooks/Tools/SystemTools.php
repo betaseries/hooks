@@ -47,13 +47,15 @@ class SystemTools
      *
      * @return string|OutputInterface
      */
-    public function executeCommand($cmd, $displayCommand=true)
+    public function executeCommand($cmd, $displayCommand=true, $sendGitHubStatus=true)
     {
         $result = '~> ' . $cmd;
 
         if ($displayCommand) {
             $this->_output->writeln($result);
-            ServiceTools::sendGitHubStatus('pending', null, $result);
+            if ($sendGitHubStatus) {
+                ServiceTools::sendGitHubStatus('pending', null, $result);
+            }
         }
 
         if (null !== $this->_outputFile) {

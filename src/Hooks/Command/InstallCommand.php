@@ -411,7 +411,7 @@ class InstallCommand extends Command
                 $i++;
                 if ($i > $cmds['release']['keep']) {
                     $output->writeln('Removing extra release '.basename($dir));
-                    $systemTools->executeCommand('rm -Rf '.$dir);
+                    $systemTools->executeCommand('rm -Rf '.$dir, true, false);
                 }
             }
         }
