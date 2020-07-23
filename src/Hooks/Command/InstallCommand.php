@@ -138,7 +138,7 @@ class InstallCommand extends Command
 
                 // If we cloned the git repo, remove it, it's useless.
                 if ($baseDir != $dir) {
-                    $systemTools->executeCommand('rm -Rf ' . $dir);
+                    $systemTools->executeCommand('rm -Rf ' . $dir, true, false);
                 }
 
                 return null;
