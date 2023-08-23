@@ -94,17 +94,15 @@ class WorkerJobCommand extends Command
                     foreach ($details['args'] as $arg => $value) {
                         $argsCli .= $arg . '=' . $value . ' ';
                     }
+                    $output->writeln('<info>[' . date('c') . '] Received: ' . $job[1] . '</info>');
                     $output->writeln('<info>[' . date('c') . '] New job started: ' . $details['command'] . ' ' . trim($argsCli) . '</info>');
 
                     switch ($details['command']) {
-                        case 'install':
-                            $command = new InstallCommand();
-                            break;
-
                         case 'clean':
                             $command = new CleanCommand();
                             break;
 
+                        case 'install':
                         default:
                             $command = new InstallCommand();
                             break;
